@@ -51,10 +51,13 @@ export function SiteHeader({ breakingHeadlines = [] }: { breakingHeadlines?: str
               </div>
             </div>
 
-            <Link href="/" className="text-center group">
-              <div className="font-serif text-burgundy text-[56px] leading-none font-bold">
-                عاجل
-              </div>
+            <Link href="/" className="text-center group flex flex-col items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt="صحيفة عاجل"
+                className="h-20 w-auto object-contain"
+              />
               <div className="text-xs text-ink-soft mt-2 tracking-[3px] font-medium">
                 صحيفة الحدث الأولى
               </div>

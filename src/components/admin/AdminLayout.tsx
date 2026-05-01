@@ -62,14 +62,14 @@ export function AdminLayout({
     <div className="grid grid-cols-[240px_1fr] min-h-screen relative z-5">
       {/* SIDEBAR */}
       <aside className="bg-paper border-l border-line p-5 flex flex-col h-screen sticky top-0">
-        <Link href="/admin" className="flex items-center gap-3 pb-6 border-b border-line mb-6">
-          <div className="w-10 h-10 rounded-xl bg-burgundy text-white grid place-items-center font-serif font-bold text-lg shadow-red">
-            ع
-          </div>
-          <div>
-            <div className="text-base font-bold text-ink leading-none mb-1">عاجل</div>
-            <div className="text-[10px] text-ink-faint tracking-wider">لوحة التحكم</div>
-          </div>
+        <Link href="/admin" className="flex flex-col items-start gap-2 pb-6 border-b border-line mb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="صحيفة عاجل"
+            className="h-12 w-auto object-contain"
+          />
+          <div className="text-[10px] text-ink-faint tracking-wider">لوحة التحكم</div>
         </Link>
 
         <nav className="flex-1 overflow-y-auto -mx-1 px-1">

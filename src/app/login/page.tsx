@@ -41,10 +41,13 @@ export default function LoginPage() {
       <div className="bg-paper border border-line rounded-3xl p-10 w-full max-w-md shadow-card relative">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <div className="font-serif text-burgundy text-5xl font-bold leading-none">
-              عاجل
-            </div>
-            <div className="text-[10px] text-ink-soft mt-2 tracking-[3px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="صحيفة عاجل"
+              className="h-16 w-auto mx-auto object-contain"
+            />
+            <div className="text-[10px] text-ink-soft mt-3 tracking-[3px]">
               صحيفة الحدث الأولى
             </div>
           </Link>
