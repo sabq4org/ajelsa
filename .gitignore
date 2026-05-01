@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+.env
+.env*.local
+
+*.log
+.DS_Store
+
+# Drizzle
+drizzle/
+.drizzle/
+
+# IDE
+.vscode/
+.idea/
+*.swp

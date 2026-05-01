@@ -1,0 +1,27 @@
+version: "3.9"
+# Local development services
+# قاعدة البيانات الإنتاجية على Neon — هذا فقط للخدمات المحلية
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.13
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY:-dev-master-key}
+      - MEILI_ENV=development
+    volumes:
+      - meili_data:/meili_data
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  meili_data:

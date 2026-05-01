@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Tajawal', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-bg text-ink antialiased;
+    font-feature-settings: "tnum" off, "kern" on;
+  }
+
+  /* Subtle paper grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.85' numOctaves='1'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.025 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  ::selection {
+    @apply bg-rose-cream text-burgundy;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200;
+  }
+  .btn-primary {
+    @apply btn bg-burgundy text-white shadow-red hover:bg-burgundy-dark hover:-translate-y-0.5;
+  }
+  .btn-secondary {
+    @apply btn bg-paper text-ink-2 border border-line hover:bg-bg-2;
+  }
+
+  .card {
+    @apply bg-paper border border-line rounded-2xl p-6;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full;
+  }
+  .pill-burgundy {
+    @apply pill bg-rose-cream text-burgundy;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-line bg-paper text-ink text-sm outline-none transition-colors focus:border-burgundy;
+  }
+
+  /* Live pulse */
+  .live-dot {
+    @apply w-1.5 h-1.5 rounded-full bg-burgundy;
+    animation: live-pulse 1.5s infinite;
+  }
+  @keyframes live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(140, 29, 43, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(140, 29, 43, 0); }
+  }
+}
+
+/* TipTap editor styles */
+.tiptap-editor {
+  @apply min-h-[300px] prose prose-lg max-w-none focus:outline-none;
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
+}
+
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-ink-faint pointer-events-none float-right h-0;
+}

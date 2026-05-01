@@ -1,0 +1,131 @@
+/**
+ * /api/articles — Article CRUD
+ */
+
+import { NextRequest, NextResponse } from "next/server";
+import { db, articles } from "@/lib/db";
+import { eq, desc, and, sql } from "drizzle-orm";
+import { getSession, requireRole } from "@/lib/auth";
+import { z } from "zod";
+import { arabicSlug, readingTimeMinutes, stripHtml } from "@/lib/utils";
+import { cacheDeletePattern } from "@/lib/redis";
+import { indexArticle } from "@/lib/search";
+
+const createSchema = z.object({
+  title: z.string().min(5).max(300),
+  subtitle: z.string().max(500).optional(),
+  excerpt: z.string().max(500).optional(),
+  contentHtml: z.string().optional(),
+  contentJson: z.any().optional(),
+  categoryId: z.string().uuid(),
+  tagIds: z.array(z.string().uuid()).optional(),
+  type: z.enum(["regular", "breaking", "exclusive", "investigation", "opinion", "video", "photo"]).default("regular"),
+  status: z.enum(["draft", "review", "scheduled", "published"]).default("draft"),
+  isBreaking: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
+  featuredImageUrl: z.string().url().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  scheduledAt: z.string().datetime().optional(),
+});
+
+// GET — list articles (paginated)
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20"), 100);
+  const offset = parseInt(url.searchParams.get("offset") ?? "0");
+  const status = url.searchParams.get("status");
+
+  const where = status ? eq(articles.status, status as any) : undefined;
+
+  const items = await db
+    .select()
+    .from(articles)
+    .where(where)
+    .orderBy(desc(articles.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(articles)
+    .where(where);
+
+  return NextResponse.json({ items, total: count, limit, offset });
+}
+
+// POST — create
+export async function POST(req: NextRequest) {
+  try {
+    const session = await requireRole("writer");
+    const body = await req.json();
+    const data = createSchema.parse(body);
+
+    const baseSlug = arabicSlug(data.title);
+    const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`;
+
+    const cleanText = data.contentHtml ? stripHtml(data.contentHtml) : "";
+    const reading = cleanText ? readingTimeMinutes(cleanText) : null;
+
+    const [created] = await db
+      .insert(articles)
+      .values({
+        slug: uniqueSlug,
+        title: data.title,
+        subtitle: data.subtitle,
+        excerpt: data.excerpt ?? cleanText.slice(0, 200),
+        contentHtml: data.contentHtml,
+        contentJson: data.contentJson,
+        categoryId: data.categoryId,
+        authorId: session.userId,
+        type: data.type,
+        status: data.status,
+        isBreaking: data.isBreaking,
+        isFeatured: data.isFeatured,
+        featuredImageUrl: data.featuredImageUrl,
+        metaTitle: data.metaTitle,
+        metaDescription: data.metaDescription,
+        readingTimeMinutes: reading,
+        publishedAt: data.status === "published" ? new Date() : null,
+        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
+      })
+      .returning();
+
+    // Bust caches
+    await cacheDeletePattern("articles:*");
+
+    // Index in search if published
+    if (created.status === "published") {
+      await indexArticle({
+        id: created.id,
+        title: created.title,
+        excerpt: created.excerpt ?? undefined,
+        contentText: cleanText,
+        slug: created.slug,
+        categoryName: "", // filled later
+        categorySlug: "",
+        authorName: session.fullName,
+        tags: [],
+        type: created.type,
+        isBreaking: created.isBreaking,
+        publishedAt: created.publishedAt
+          ? Math.floor(created.publishedAt.getTime() / 1000)
+          : Math.floor(Date.now() / 1000),
+        featuredImageUrl: created.featuredImageUrl ?? undefined,
+      }).catch(() => {});
+    }
+
+    return NextResponse.json({ article: created }, { status: 201 });
+  } catch (err: any) {
+    if (err.message === "UNAUTHENTICATED") {
+      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    }
+    if (err.message === "FORBIDDEN") {
+      return NextResponse.json({ error: "صلاحيات غير كافية" }, { status: 403 });
+    }
+    if (err.name === "ZodError") {
+      return NextResponse.json({ error: err.errors }, { status: 400 });
+    }
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
