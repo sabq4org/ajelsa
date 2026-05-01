@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap } from "lucide-react";
+import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2 } from "lucide-react";
+import { toast } from "@/components/admin/Toast";
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -18,22 +19,29 @@ export default function NewArticlePage() {
   const [isBreaking, setIsBreaking] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [featuredImageUrl, setFeaturedImageUrl] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
   const [saving, setSaving] = useState(false);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingCats, setLoadingCats] = useState(true);
 
-  // Demo categories (in production: fetch from API)
-  const categories = [
-    { id: "1", name: "محليات" },
-    { id: "2", name: "اقتصاد" },
-    { id: "3", name: "رياضة" },
-    { id: "4", name: "عالم" },
-    { id: "5", name: "تقنية" },
-    { id: "6", name: "منوعات" },
-    { id: "7", name: "آراء" },
-  ];
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((d) => {
+        setCategories(d.items ?? []);
+        if (d.items?.[0]) setCategoryId(d.items[0].id);
+      })
+      .catch(() => toast.error("فشل تحميل الأقسام"))
+      .finally(() => setLoadingCats(false));
+  }, []);
 
-  async function handleSave(status: "draft" | "review" | "published") {
-    if (!title.trim()) {
-      alert("العنوان مطلوب");
+  async function handleSave(status: "draft" | "review" | "published" | "scheduled") {
+    if (!title.trim() || title.trim().length < 5) {
+      toast.error("العنوان مطلوب (5 أحرف على الأقل)");
+      return;
+    }
+    if (!categoryId) {
+      toast.error("اختر قسمًا للخبر");
       return;
     }
     setSaving(true);
@@ -42,9 +50,9 @@ export default function NewArticlePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title,
-          subtitle,
-          excerpt,
+          title: title.trim(),
+          subtitle: subtitle.trim() || undefined,
+          excerpt: excerpt.trim() || undefined,
           contentHtml,
           contentJson,
           categoryId,
@@ -53,19 +61,25 @@ export default function NewArticlePage() {
           isBreaking,
           isFeatured,
           featuredImageUrl: featuredImageUrl || undefined,
+          scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
         }),
       });
 
       if (!res.ok) {
         const err = await res.json();
-        alert("فشل الحفظ: " + JSON.stringify(err.error));
+        toast.error("فشل الحفظ: " + (err.error || "خطأ غير معروف"));
         setSaving(false);
         return;
       }
 
+      toast.success(
+        status === "published" ? "تم نشر الخبر" :
+        status === "review" ? "تم إرساله للمراجعة" :
+        status === "scheduled" ? "تم جدولة الخبر" : "تم حفظ المسودة"
+      );
       router.push("/admin/articles");
     } catch (e: any) {
-      alert("خطأ: " + e.message);
+      toast.error("خطأ: " + e.message);
       setSaving(false);
     }
   }
@@ -213,19 +227,23 @@ export default function NewArticlePage() {
           {/* Category */}
           <div className="card">
             <h3 className="text-[14px] font-bold text-ink mb-3">القسم</h3>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="input"
-              dir="rtl"
-            >
-              <option value="">اختر القسم...</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            {loadingCats ? (
+              <div className="py-3 grid place-items-center text-ink-soft"><Loader2 size={14} className="animate-spin" /></div>
+            ) : (
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="input"
+                dir="rtl"
+              >
+                <option value="">اختر القسم...</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Type & flags */}
@@ -282,8 +300,19 @@ export default function NewArticlePage() {
             </h3>
             <input
               type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
               className="input"
             />
+            {scheduledAt && (
+              <button
+                onClick={() => handleSave("scheduled")}
+                disabled={saving}
+                className="w-full mt-3 bg-bg-2 hover:bg-line text-ink-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-colors"
+              >
+                جدولة للوقت المحدد
+              </button>
+            )}
             <p className="text-[11px] text-ink-soft mt-2">
               اختياري — اترك فارغاً للنشر الفوري
             </p>

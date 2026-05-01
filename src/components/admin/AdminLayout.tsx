@@ -19,15 +19,15 @@ import {
   Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ToastHost } from "./Toast";
 
 const MENU_GROUPS = [
   {
     label: "الرئيسية",
     items: [
       { icon: LayoutDashboard, label: "نظرة عامة", href: "/admin" },
-      { icon: Newspaper, label: "الأخبار", href: "/admin/articles", badge: 12 },
-      { icon: Zap, label: "عاجل الآن", href: "/admin/articles?type=breaking", badge: 3 },
-      { icon: FileText, label: "المسودات", href: "/admin/articles?status=draft" },
+      { icon: Newspaper, label: "الأخبار", href: "/admin/articles" },
+      { icon: FileText, label: "خبر جديد", href: "/admin/articles/new" },
     ],
   },
   {
@@ -36,7 +36,7 @@ const MENU_GROUPS = [
       { icon: FolderTree, label: "الأقسام", href: "/admin/categories" },
       { icon: Tag, label: "الوسوم", href: "/admin/tags" },
       { icon: ImageIcon, label: "المكتبة", href: "/admin/media" },
-      { icon: MessageCircle, label: "التعليقات", href: "/admin/comments", badge: 28 },
+      { icon: MessageCircle, label: "التعليقات", href: "/admin/comments" },
     ],
   },
   {
@@ -94,9 +94,9 @@ export function AdminLayout({
                   >
                     <Icon size={16} className="opacity-85" />
                     <span>{item.label}</span>
-                    {item.badge != null && (
+                    {("badge" in item) && (item as any).badge != null && (
                       <span className="mr-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-burgundy text-white">
-                        {item.badge}
+                        {(item as any).badge}
                       </span>
                     )}
                   </Link>
@@ -123,6 +123,7 @@ export function AdminLayout({
 
       {/* MAIN */}
       <main className="p-7 px-8 overflow-x-hidden">{children}</main>
+      <ToastHost />
     </div>
   );
 }

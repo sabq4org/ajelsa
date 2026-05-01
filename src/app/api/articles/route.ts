@@ -3,7 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { db, articles } from "@/lib/db";
+import { db, articles, categories, users } from "@/lib/db";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { getSession, requireRole } from "@/lib/auth";
 import { z } from "zod";
@@ -29,7 +29,7 @@ const createSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
 });
 
-// GET — list articles (paginated)
+// GET — list articles (paginated, with joined names)
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20"), 100);
@@ -39,8 +39,32 @@ export async function GET(req: NextRequest) {
   const where = status ? eq(articles.status, status as any) : undefined;
 
   const items = await db
-    .select()
+    .select({
+      id: articles.id,
+      slug: articles.slug,
+      title: articles.title,
+      subtitle: articles.subtitle,
+      excerpt: articles.excerpt,
+      featuredImageUrl: articles.featuredImageUrl,
+      type: articles.type,
+      status: articles.status,
+      isBreaking: articles.isBreaking,
+      isFeatured: articles.isFeatured,
+      categoryId: articles.categoryId,
+      authorId: articles.authorId,
+      publishedAt: articles.publishedAt,
+      scheduledAt: articles.scheduledAt,
+      viewCount: articles.viewCount,
+      commentCount: articles.commentCount,
+      readingTimeMinutes: articles.readingTimeMinutes,
+      createdAt: articles.createdAt,
+      updatedAt: articles.updatedAt,
+      categoryName: categories.name,
+      authorName: users.fullName,
+    })
     .from(articles)
+    .leftJoin(categories, eq(articles.categoryId, categories.id))
+    .leftJoin(users, eq(articles.authorId, users.id))
     .where(where)
     .orderBy(desc(articles.createdAt))
     .limit(limit)

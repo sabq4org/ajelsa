@@ -31,6 +31,20 @@ function getClient(): S3Client {
 const BUCKET = process.env.R2_BUCKET_NAME!;
 const PUBLIC_URL = process.env.R2_PUBLIC_URL || "";
 
+function isR2Configured() {
+  return !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && process.env.R2_BUCKET_NAME);
+}
+
+async function uploadToFs(buffer: Buffer | Uint8Array, key: string): Promise<string> {
+  // Fallback for dev/no-R2: store under public/uploads
+  const fs = await import("node:fs/promises");
+  const path = await import("node:path");
+  const fullPath = path.join(process.cwd(), "public", "uploads", key);
+  await fs.mkdir(path.dirname(fullPath), { recursive: true });
+  await fs.writeFile(fullPath, buffer as Buffer);
+  return `/uploads/${key}`;
+}
+
 export async function uploadFile(
   buffer: Buffer | Uint8Array,
   options: {
@@ -42,6 +56,11 @@ export async function uploadFile(
   const folder = options.folder ?? "uploads";
   const ext = options.extension?.replace(/^\./, "") ?? "bin";
   const key = `${folder}/${new Date().toISOString().slice(0, 7)}/${nanoid(16)}.${ext}`;
+
+  if (!isR2Configured()) {
+    const url = await uploadToFs(buffer, key);
+    return { key, url };
+  }
 
   await getClient().send(
     new PutObjectCommand({
@@ -59,6 +78,14 @@ export async function uploadFile(
 }
 
 export async function deleteFile(key: string): Promise<void> {
+  if (!isR2Configured()) {
+    try {
+      const fs = await import("node:fs/promises");
+      const path = await import("node:path");
+      await fs.unlink(path.join(process.cwd(), "public", "uploads", key));
+    } catch {}
+    return;
+  }
   await getClient().send(
     new DeleteObjectCommand({ Bucket: BUCKET, Key: key })
   );
