@@ -75,6 +75,10 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       ) : (
         <>
+          {articles.length === 1 && (
+            <StoryCard article={articles[0]} variant="lead" />
+          )}
+
           {/* Lead + side */}
           {articles.length >= 2 && (
             <section className="grid lg:grid-cols-[1.6fr_1fr] gap-8 mb-10">
