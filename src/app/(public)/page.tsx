@@ -6,16 +6,13 @@ import {
   getMostReadArticles,
   getFeaturedArticles,
 } from "@/lib/queries/articles";
-import { Newspaper, Clock, Eye, Flame } from "lucide-react";
-import { formatRelativeTime, formatNumber } from "@/lib/utils";
-
 import { LivePulseBar } from "@/components/public/LivePulseBar";
 import { HeroSection } from "@/components/public/HeroSection";
 import { AIBriefWidget } from "@/components/public/AIBriefWidget";
 import { EditorsPicks } from "@/components/public/EditorsPicks";
 import { MostReadStrip } from "@/components/public/MostReadStrip";
 import { NewsletterHero } from "@/components/public/NewsletterHero";
-import { SectionHeader } from "@/components/public/SectionHeader";
+import { LatestNewsGrid } from "@/components/public/LatestNewsGrid";
 
 // Fallback demo data (تستخدم فقط لو DB فاضية تماماً)
 const FALLBACK_LEAD: any = {
@@ -81,76 +78,9 @@ export default async function HomePage() {
           <AIBriefWidget articles={briefArticles} />
         )}
 
-        {/* ━━━━━━━━━━━━ آخر الأخبار — شبكة موحدة أنيقة ━━━━━━━━━━━━ */}
-        {latest.length > sideStories.length + 1 && (
-          <section>
-            <SectionHeader
-              icon={<Newspaper size={18} />}
-              title="آخر الأخبار"
-              subtitle="جميع الأخبار بترتيب النشر"
-              href="/latest"
-              hrefLabel="عرض الكل"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {latest.slice(sideStories.length + 1).map((a: any, i: number) => (
-                <a
-                  key={i}
-                  href={`/article/${a.slug}`}
-                  className="group bg-paper rounded-2xl border border-line overflow-hidden hover:border-burgundy/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col"
-                >
-                  {/* الصورة */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-rose-cream">
-                    {a.featuredImageUrl ? (
-                      <img
-                        src={a.featuredImageUrl}
-                        alt={a.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-burgundy/10 via-rose-cream to-burgundy/5" />
-                    )}
-                    {a.isBreaking && (
-                      <div className="absolute top-3 right-3 inline-flex items-center gap-1 bg-burgundy text-white px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider shadow-lg">
-                        <Flame size={9} />
-                        عاجل
-                      </div>
-                    )}
-                  </div>
-
-                  {/* المحتوى */}
-                  <div className="p-5 flex-1 flex flex-col">
-                    {a.category && (
-                      <span className="text-[10px] font-bold text-burgundy uppercase tracking-widest mb-2 block">
-                        {a.category.name}
-                      </span>
-                    )}
-
-                    <h3 className="text-[15px] font-extrabold text-ink leading-snug line-clamp-2 group-hover:text-burgundy transition-colors mb-3 -tracking-[0.01em] flex-1">
-                      {a.title}
-                    </h3>
-
-                    <div className="flex items-center gap-3 text-[10px] text-ink-soft pt-2 border-t border-line-soft">
-                      {a.publishedAt && (
-                        <span className="flex items-center gap-1">
-                          <Clock size={9} />
-                          {formatRelativeTime(a.publishedAt)}
-                        </span>
-                      )}
-                      {a.viewCount != null && a.viewCount > 0 && (
-                        <>
-                          <span className="w-0.5 h-0.5 rounded-full bg-ink-faint" />
-                          <span className="flex items-center gap-1">
-                            <Eye size={9} />
-                            {formatNumber(a.viewCount)}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
+        {/* ━━━━━━━━━━━━ آخر الأخبار — يعرض كل الأخبار ━━━━━━━━━━━━ */}
+        {latest.length > 0 && (
+          <LatestNewsGrid articles={latest} />
         )}
 
         {/* ━━━━━━━━━━━━ Editor's Picks ━━━━━━━━━━━━ */}
