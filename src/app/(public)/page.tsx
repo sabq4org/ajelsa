@@ -132,9 +132,8 @@ export default async function HomePage() {
       sideStories = latestArticles.slice(1, 5);
     }
 
-    // كل الأخبار المتبقية بعد الليد والسايد
-    const heroCount = lead ? 1 + sideStories.length : 0;
-    latest = latestArticles.slice(heroCount);
+    // آخر الأخبار مستقلة عن الهيرو — تعرض كل الأخبار بالترتيب
+    latest = latestArticles;
     mostRead = mostReadArticles.length > 0 ? mostReadArticles : null;
   } catch {
     // DB not connected — show demo

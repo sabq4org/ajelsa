@@ -186,13 +186,7 @@ export async function getCategoryArticles(
     .from(articles)
     .innerJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(users, eq(articles.authorId, users.id))
-    .where(
-      and(
-        eq(articles.status, "published" as any),
-        isNotNull(articles.publishedAt),
-        eq(categories.slug, categorySlug)
-      )
-    )
+    .where(and(PUBLISHED_FILTER, eq(categories.slug, categorySlug)))
     .orderBy(desc(articles.publishedAt))
     .limit(limit)
     .offset(offset);
@@ -232,12 +226,10 @@ export async function getKeywordArticles(keyword: string, limit = 24) {
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(users, eq(articles.authorId, users.id))
-    .where(
-      and(
-        PUBLISHED_FILTER,
-        sql`${articles.metaKeywords} ILIKE ${'%' + keyword + '%'}`
-      )
-    )
+    .where(and(
+      PUBLISHED_FILTER,
+      sql`${articles.metaKeywords} ILIKE ${('%' + keyword + '%')}`
+    ))
     .orderBy(desc(articles.publishedAt))
     .limit(limit);
 
