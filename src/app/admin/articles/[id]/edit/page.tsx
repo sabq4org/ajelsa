@@ -8,6 +8,7 @@ import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Tras
 import { toast } from "@/components/admin/Toast";
 import { ConfirmDialog } from "@/components/admin/Modal";
 import { SeoSection } from "@/components/admin/SeoSection";
+import { SmartEditBar } from "@/components/admin/SmartEditBar";
 import { ArticlePreviewModal } from "@/components/admin/ArticlePreviewModal";
 import { VersionHistoryPanel } from "@/components/admin/VersionHistoryPanel";
 
@@ -242,6 +243,20 @@ export default function EditArticlePage() {
             onChange={({ html, json }) => {
               setContentHtml(html);
               setContentJson(json);
+            }}
+          />
+
+          {/* ✨ Smart Edit Bar */}
+          <SmartEditBar
+            contentHtml={contentHtml}
+            onApply={(data) => {
+              if (data.title !== undefined) setTitle(data.title);
+              if (data.subtitle !== undefined) setSubtitle(data.subtitle);
+              if (data.excerpt !== undefined) setExcerpt(data.excerpt);
+              if (data.metaTitle !== undefined) setMetaTitle(data.metaTitle);
+              if (data.metaDescription !== undefined) setMetaDescription(data.metaDescription);
+              if (data.metaKeywords !== undefined) setMetaKeywords(data.metaKeywords);
+              if (data.contentHtml !== undefined) setContentHtml(data.contentHtml);
             }}
           />
 

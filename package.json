@@ -17,6 +17,7 @@
     "search:sync": "tsx scripts/search-sync.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "@aws-sdk/client-s3": "^3.722.0",
     "@aws-sdk/s3-request-presigner": "^3.722.0",
     "@neondatabase/serverless": "^0.10.4",
