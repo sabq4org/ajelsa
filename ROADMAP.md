@@ -1,27 +1,105 @@
-# 🗺️ Ajel CMS — Roadmap
+# 🗺️ Ajel CMS — خارطة الطريق
 
-## Phase 1 — Content Tools (SEO + Preview + History)
-- [ ] SEO Manager Panel per article
-- [ ] Article Preview before publish
-- [ ] Version History & Restore
+## ✅ المرحلة 1 — أدوات المحتوى (مكتمل)
+- [x] SEO Manager Panel لكل خبر
+- [x] معاينة الخبر قبل النشر
+- [x] Version History واستعادة النسخ
 
-## Phase 2 — Operations (Audit + Breaking + Analytics)
-- [ ] Audit Log (who did what, when)
-- [ ] Breaking Desk dedicated page
-- [ ] Editor Performance Reports (enhanced analytics)
+## ✅ المرحلة 2 — العمليات (مكتمل)
+- [x] Audit Log (من فعل ماذا ومتى)
+- [x] Breaking Desk صفحة مخصصة
+- [x] Editor Performance Reports
 
-## Phase 3 — Editorial Workflow + RBAC
-- [ ] Approval flow: Writer → Editor → Editor-in-Chief → Publish
-- [ ] Role-based access control enforcement
-- [ ] Workflow notifications
+## ✅ المرحلة 3 — Workflow + RBAC (مكتمل)
+- [x] سير الموافقة: كاتب → محرر → رئيس تحرير → نشر
+- [x] التحكم بالصلاحيات بالأدوار
+- [x] إشعارات Workflow
 
-## Phase 4 — UX Enhancements
-- [ ] Dark Mode
-- [ ] Scheduling Calendar view
-- [ ] Drag & Drop homepage ordering
+## ✅ المرحلة 4 — تحسينات UX (مكتمل)
+- [x] الوضع الليلي (Dark Mode)
+- [x] تقويم الجدولة
+- [x] Drag & Drop لترتيب الصفحة الرئيسية
 
-## Phase 5 — Growth Features
+## ✅ المرحلة 5 — ميزات النمو (مكتمل)
+- [x] Newsletter (مشتركو البريد)
+- [x] Polls داخل الأخبار
+- [x] Ad Manager
 - [ ] Push Notifications (FCM)
-- [ ] Newsletter (email subscribers)
-- [ ] Polls embedded in articles
-- [ ] Ad Manager
+
+## ✅ المرحلة 6 — الذكاء الاصطناعي (مكتمل)
+- [x] التحرير الذكي بـ GPT-4o (عناوين + ملخصات + SEO)
+- [x] توليد الصور بـ DALL-E 3 + Imagen 4
+- [x] AI Daily Brief للنشرة اليومية
+- [x] Ask the Article (Chat AI على كل خبر)
+- [x] استخراج النقاط الرئيسية تلقائياً
+
+## ✅ المرحلة 7 — الواجهة العامة (مكتمل)
+- [x] Hero Section متطور
+- [x] Live Pulse Bar
+- [x] قسم رياضة بخلفية ممتدة
+- [x] قسم فيديو
+- [x] صفحات أقسام ديناميكية
+- [x] صفحات كلمات مفتاحية
+- [x] هيدر فخم بمؤشر تاسي + التاريخ الهجري
+- [x] فوتر فخم باقتباس صحفي عشوائي
+- [x] نظام نشر متدرج (مميز/عادي/مخفي)
+- [x] toggle 3/4 أعمدة لآخر الأخبار
+
+## ✅ المرحلة 8 — الأداء والبنية (مكتمل)
+- [x] ISR للصفحات العامة
+- [x] Auto-revalidation عند النشر
+- [x] Cloudinary CDN للصور
+- [x] R2 احتياطي للتخزين
+- [x] Endpoint للتجديد اليدوي
+
+---
+
+## 🔮 المرحلة 9 — قيد التخطيط
+
+### تحسينات AI متقدمة
+- [ ] **استمع للخبر** (TTS بصوت عربي طبيعي عبر ElevenLabs)
+- [ ] **Timeline ذكي** للأحداث المترابطة
+- [ ] **Mood Bar** لتحليل مشاعر القراء
+- [ ] **بطاقة مشاركة ذكية** (صورة جاهزة لتويتر/إنستجرام)
+- [ ] **Related Articles AI** (ربط ذكي بين الأخبار)
+- [ ] **Personalized Feed** بناءً على عادات القارئ
+
+### النمو والمشاركة
+- [ ] Push Notifications (FCM) للأخبار العاجلة
+- [ ] تطبيق iOS + Android
+- [ ] نظام تعليقات احترافي
+- [ ] برنامج كتّاب الرأي
+- [ ] قسم Podcasts
+
+### تجربة المحرر
+- [ ] AI Assistant داخل المحرر يقترح تعديلات live
+- [ ] Plagiarism Check (فحص الأصالة)
+- [ ] Translation Engine (عربي → إنجليزي/أوردو)
+- [ ] Auto-tagging الأخبار
+
+### البنية التحتية
+- [ ] RSS Feed
+- [ ] Sitemap.xml ديناميكي
+- [ ] AMP للجوال
+- [ ] PWA كاملة
+- [ ] Service Worker للوضع Offline
+
+### تحليلات متقدمة
+- [ ] Heatmaps للقراءة
+- [ ] A/B Testing للعناوين
+- [ ] تحليل سرعة القراءة
+- [ ] تقارير تنفيذية أسبوعية
+
+---
+
+## 📊 إحصائيات التطوير
+
+- **عدد الميزات المكتملة:** 60+
+- **API Endpoints:** 25+
+- **مكونات React:** 80+
+- **خدمات AI متكاملة:** 6
+- **حقول DB:** 12 جدولاً
+
+---
+
+> آخر تحديث: 2026-05-02
