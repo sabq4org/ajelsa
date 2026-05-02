@@ -99,17 +99,26 @@ Culturally appropriate for Saudi Arabia. No text, no watermarks, no logos.`;
   const ext = mime.split("/")[1]?.split(";")[0] ?? "jpg";
   const buffer = Buffer.from(base64, "base64");
 
-  // ── 6. رفع على R2 ─────────────────────────────────────────────────────
+  // ── 6. رفع على R2 (أو data URL كاحتياطي لو R2 غير مضبوط) ──────────────
+  const r2Ready = !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY && process.env.R2_BUCKET_NAME);
+
   let url: string;
-  try {
-    const uploaded = await uploadFile(buffer, {
-      folder: "ai-generated",
-      extension: ext,
-      contentType: mime,
-    });
-    url = uploaded.url;
-  } catch (e: any) {
-    return NextResponse.json({ error: `فشل رفع الصورة: ${e.message}` }, { status: 500 });
+
+  if (r2Ready) {
+    try {
+      const uploaded = await uploadFile(buffer, {
+        folder: "ai-generated",
+        extension: ext,
+        contentType: mime,
+      });
+      url = uploaded.url;
+    } catch (e: any) {
+      return NextResponse.json({ error: `فشل رفع الصورة على R2: ${e.message}` }, { status: 500 });
+    }
+  } else {
+    // R2 غير مضبوط — نرجع data URL مباشرة
+    url = `data:${mime};base64,${base64}`;
   }
 
   return NextResponse.json({ url });
