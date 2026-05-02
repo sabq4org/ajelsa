@@ -24,12 +24,13 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 2. قراءة الطلب ────────────────────────────────────────────────────
-  let title = "", excerpt = "", category = "";
+  let title = "", excerpt = "", category = "", style = "photorealistic";
   try {
     const body = await req.json();
     title = body.title?.trim() ?? "";
     excerpt = body.excerpt?.trim() ?? "";
     category = body.category?.trim() ?? "";
+    style = body.style?.trim() || "photorealistic";
   } catch {
     return NextResponse.json({ error: "طلب غير صحيح" }, { status: 400 });
   }
@@ -39,12 +40,18 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 3. بناء البرومبت ──────────────────────────────────────────────────
-  const prompt = `Create a professional news photograph for a Saudi Arabic news article.
+  const styleGuide = style === "illustration"
+    ? "Modern flat digital illustration style, clean vector-like art, soft pastel colors, professional infographic look, 2D icons and characters, similar to medical/tech explainer artwork. Friendly and contemporary."
+    : "Photorealistic professional news photography, high-quality photojournalism, realistic lighting and textures, documentary feel.";
+
+  const prompt = `Create a 16:9 news image for a Saudi Arabic news article.
 Title: ${title}
 ${excerpt ? `Summary: ${excerpt}` : ""}
 ${category ? `Category: ${category}` : ""}
-Style: professional photojournalism, realistic, 16:9 composition.
-Culturally appropriate for Saudi Arabia. No text, no watermarks, no logos.`;
+
+Style: ${styleGuide}
+Culturally appropriate for Saudi Arabia and the Gulf region.
+Absolutely NO text, NO Arabic or English letters, NO words, NO watermarks, NO logos anywhere in the image.`;
 
   // ── 4. استدعاء Nano Banana Pro (gemini-3-pro-image-preview) ──────────────
   let geminiRes: Response;

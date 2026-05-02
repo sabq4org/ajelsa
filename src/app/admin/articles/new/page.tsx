@@ -23,6 +23,7 @@ export default function NewArticlePage() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [featuredImageUrl, setFeaturedImageUrl] = useState("");
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [isAiImage, setIsAiImage] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
@@ -110,6 +111,10 @@ export default function NewArticlePage() {
     }
     setGeneratingImage(true);
     try {
+      // جلب النمط من الإعدادات
+      const settingsRes = await fetch("/api/settings").then((r) => r.json()).catch(() => ({}));
+      const style = settingsRes?.settings?.aiImageStyle ?? "photorealistic";
+
       const res = await fetch("/api/ai/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -117,6 +122,7 @@ export default function NewArticlePage() {
           title: title.trim(),
           excerpt: excerpt.trim() || undefined,
           category: categories.find((c) => c.id === categoryId)?.name || undefined,
+          style,
         }),
       });
       if (!res.ok) {
@@ -126,6 +132,7 @@ export default function NewArticlePage() {
       }
       const { url } = await res.json();
       setFeaturedImageUrl(url);
+      setIsAiImage(true);
       toast.success("تم توليد الصورة بنجاح ✨");
     } catch (e: any) {
       toast.error("خطأ: " + e.message);
@@ -289,8 +296,14 @@ export default function NewArticlePage() {
                   alt=""
                   className="w-full h-full object-cover"
                 />
+                {isAiImage && (
+                  <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[11px] font-semibold">
+                    <Sparkles size={11} />
+                    مولدة بالذكاء الاصطناعي
+                  </div>
+                )}
                 <button
-                  onClick={() => setFeaturedImageUrl("")}
+                  onClick={() => { setFeaturedImageUrl(""); setIsAiImage(false); }}
                   className="absolute top-2 left-2 bg-paper text-ink-2 px-3 py-1 rounded-md text-xs font-semibold"
                 >
                   إزالة

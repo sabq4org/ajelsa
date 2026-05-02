@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getArticleBySlug } from "@/lib/queries/articles";
 import { formatRelativeTime, formatNumber, formatArabicDate } from "@/lib/utils";
-import { Eye, MessageCircle, Share2, Clock, Tag as TagIcon } from "lucide-react";
+import { Eye, MessageCircle, Share2, Clock, Tag as TagIcon, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -108,6 +108,13 @@ export default async function ArticlePage({
               alt={article.featuredImageAlt ?? article.title}
               className="w-full h-full object-cover"
             />
+            {(article.featuredImageUrl.includes("ai-generated") ||
+              article.featuredImageUrl.startsWith("data:")) && (
+              <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/55 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-[11px] font-semibold shadow-lg">
+                <Sparkles size={11} className="text-yellow-300" />
+                مولدة بالذكاء الاصطناعي
+              </div>
+            )}
           </div>
           {article.featuredImageCaption && (
             <figcaption className="text-xs text-ink-soft text-center mt-3 italic">

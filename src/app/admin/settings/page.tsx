@@ -2,7 +2,7 @@
 
 import { AdminTopbar } from "@/components/admin/AdminLayout";
 import { useEffect, useState } from "react";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, Sparkles, Camera, Palette } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
 
 type Settings = Record<string, any>;
@@ -91,15 +91,55 @@ export default function SettingsPage() {
         <Section title="الفوتر" full>
           <Field label="نص الفوتر" value={data.footerText} onChange={(v) => update("footerText", v)} multiline placeholder="© 2026 صحيفة عاجل. جميع الحقوق محفوظة." />
         </Section>
+
+        <Section title="إعدادات الذكاء الاصطناعي" full icon={<Sparkles size={15} className="text-burgundy" />}>
+          <div>
+            <label className="block text-[12px] font-semibold text-ink-soft mb-3">نمط الصورة المولدة</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => update("aiImageStyle", "photorealistic")}
+                className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all ${
+                  (data.aiImageStyle ?? "photorealistic") === "photorealistic"
+                    ? "border-burgundy bg-rose-cream/40 text-burgundy"
+                    : "border-line bg-bg-2 text-ink-2 hover:border-burgundy/40"
+                }`}
+              >
+                <Camera size={22} />
+                <div className="text-center">
+                  <div className="text-[13px] font-bold">واقعية</div>
+                  <div className="text-[11px] opacity-70 mt-0.5">صورة فوتوغرافية احترافية</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => update("aiImageStyle", "illustration")}
+                className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all ${
+                  data.aiImageStyle === "illustration"
+                    ? "border-burgundy bg-rose-cream/40 text-burgundy"
+                    : "border-line bg-bg-2 text-ink-2 hover:border-burgundy/40"
+                }`}
+              >
+                <Palette size={22} />
+                <div className="text-center">
+                  <div className="text-[13px] font-bold">رسومية</div>
+                  <div className="text-[11px] opacity-70 mt-0.5">رسوم رقمي حديث وأنيق</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </Section>
       </div>
     </>
   );
 }
 
-function Section({ title, children, full }: { title: string; children: React.ReactNode; full?: boolean }) {
+function Section({ title, children, full, icon }: { title: string; children: React.ReactNode; full?: boolean; icon?: React.ReactNode }) {
   return (
     <div className={`card ${full ? "lg:col-span-2" : ""}`}>
-      <h2 className="text-[15px] font-bold text-ink mb-4 pb-3 border-b border-line-soft">{title}</h2>
+      <h2 className="text-[15px] font-bold text-ink mb-4 pb-3 border-b border-line-soft flex items-center gap-2">
+        {icon}{title}
+      </h2>
       <div className="space-y-3">{children}</div>
     </div>
   );

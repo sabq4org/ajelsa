@@ -50,6 +50,7 @@ export default function EditArticlePage() {
 
   // AI image generation
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [isAiImage, setIsAiImage] = useState(false);
 
   const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "";
 
@@ -167,6 +168,7 @@ export default function EditArticlePage() {
       }
       const { url } = await res.json();
       setFeaturedImageUrl(url);
+      setIsAiImage(true);
       toast.success("تم توليد الصورة بنجاح ✨");
     } catch (e: any) {
       toast.error("خطأ: " + e.message);
@@ -315,7 +317,13 @@ export default function EditArticlePage() {
               <div className="relative aspect-video rounded-xl overflow-hidden bg-bg-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={featuredImageUrl} alt="" className="w-full h-full object-cover" />
-                <button onClick={() => setFeaturedImageUrl("")} className="absolute top-2 left-2 bg-paper text-ink-2 px-3 py-1 rounded-md text-xs font-semibold">إزالة</button>
+                {isAiImage && (
+                  <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[11px] font-semibold">
+                    <Sparkles size={11} />
+                    مولدة بالذكاء الاصطناعي
+                  </div>
+                )}
+                <button onClick={() => { setFeaturedImageUrl(""); setIsAiImage(false); }} className="absolute top-2 left-2 bg-paper text-ink-2 px-3 py-1 rounded-md text-xs font-semibold">إزالة</button>
               </div>
             ) : (
               <button onClick={handleImageUpload} className="w-full aspect-video rounded-xl border-2 border-dashed border-line bg-bg-2 hover:border-burgundy hover:bg-rose-cream/30 transition-all grid place-items-center text-ink-soft">
