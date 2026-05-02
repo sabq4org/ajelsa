@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getArticleBySlug } from "@/lib/queries/articles";
 import { formatRelativeTime, formatNumber, formatArabicDate } from "@/lib/utils";
 import { Eye, MessageCircle, Share2, Clock, Tag as TagIcon, Sparkles } from "lucide-react";
@@ -162,12 +163,13 @@ export default async function ArticlePage({
           <div className="flex flex-wrap gap-2">
             {(article.metaKeywords as string).split(/[،,]+/).map((kw, i) => (
               kw.trim() ? (
-                <span
+                <Link
                   key={i}
-                  className="text-xs px-3 py-1 rounded-full border border-line text-ink-2 bg-bg-2"
+                  href={`/keyword/${encodeURIComponent(kw.trim())}`}
+                  className="text-xs px-3 py-1.5 rounded-full border border-line text-ink-2 bg-bg-2 hover:bg-rose-cream hover:text-burgundy hover:border-burgundy/30 transition-all"
                 >
-                  {kw.trim()}
-                </span>
+                  # {kw.trim()}
+                </Link>
               ) : null
             ))}
           </div>

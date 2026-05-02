@@ -212,6 +212,49 @@ export async function getCategoryArticles(
   }));
 }
 
+/** أخبار الكلمة المفتاحية */
+export async function getKeywordArticles(keyword: string, limit = 24) {
+  // نبحث في metaKeywords عن الكلمة (ILIKE للبحث غير الحساس)
+  const rows = await db
+    .select({
+      id: articles.id,
+      slug: articles.slug,
+      title: articles.title,
+      excerpt: articles.excerpt,
+      featuredImageUrl: articles.featuredImageUrl,
+      isBreaking: articles.isBreaking,
+      publishedAt: articles.publishedAt,
+      viewCount: articles.viewCount,
+      categoryName: categories.name,
+      categorySlug: categories.slug,
+      authorName: users.fullName,
+    })
+    .from(articles)
+    .leftJoin(categories, eq(articles.categoryId, categories.id))
+    .leftJoin(users, eq(articles.authorId, users.id))
+    .where(
+      and(
+        PUBLISHED_FILTER,
+        sql`${articles.metaKeywords} ILIKE ${'%' + keyword + '%'}`
+      )
+    )
+    .orderBy(desc(articles.publishedAt))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    excerpt: r.excerpt,
+    featuredImageUrl: r.featuredImageUrl,
+    isBreaking: r.isBreaking,
+    publishedAt: r.publishedAt,
+    viewCount: r.viewCount,
+    category: { name: r.categoryName ?? "", slug: r.categorySlug ?? "" },
+    author: r.authorName ? { fullName: r.authorName } : null,
+  }));
+}
+
 /** كل الأقسام (بدون cache لضمان البيانات الحديثة) */
 export async function getActiveCategories() {
   return db
