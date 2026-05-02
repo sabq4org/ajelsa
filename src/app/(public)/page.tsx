@@ -5,6 +5,7 @@ import {
   getLatestArticles,
   getMostReadArticles,
   getFeaturedArticles,
+  getCategoryArticles,
 } from "@/lib/queries/articles";
 import { LivePulseBar } from "@/components/public/LivePulseBar";
 import { HeroSection } from "@/components/public/HeroSection";
@@ -13,8 +14,10 @@ import { EditorsPicks } from "@/components/public/EditorsPicks";
 import { MostReadStrip } from "@/components/public/MostReadStrip";
 import { NewsletterHero } from "@/components/public/NewsletterHero";
 import { LatestNewsGrid } from "@/components/public/LatestNewsGrid";
+import { SportsSection } from "@/components/public/SportsSection";
+import { VideoSection } from "@/components/public/VideoSection";
 
-// Fallback demo data (تستخدم فقط لو DB فاضية تماماً)
+// Fallback demo data
 const FALLBACK_LEAD: any = {
   slug: "saudi-private-sector-2026",
   title: "قرارات سعودية غير مسبوقة لدعم القطاع الخاص في 2026",
@@ -32,13 +35,15 @@ export default async function HomePage() {
   let latest: any[] = [];
   let mostRead: any[] = [];
   let editorsPicks: any[] = [];
+  let sportsArticles: any[] = [];
   let hasRealData = false;
 
   try {
-    const [featured, latestArticles, mostReadArticles] = await Promise.all([
+    const [featured, latestArticles, mostReadArticles, sports] = await Promise.all([
       getFeaturedArticles(8),
       getLatestArticles(50),
       getMostReadArticles(5),
+      getCategoryArticles("sports", 4, 0),
     ]);
 
     hasRealData = featured.length > 0 || latestArticles.length > 0;
@@ -46,7 +51,6 @@ export default async function HomePage() {
     if (featured.length > 0) {
       lead = featured[0];
       sideStories = featured.slice(1, 5);
-      // اختيارات المحرر = الأخبار المميزة بعد الـ Hero
       editorsPicks = featured.slice(5, 8);
     } else if (latestArticles.length > 0) {
       lead = latestArticles[0];
@@ -55,6 +59,7 @@ export default async function HomePage() {
 
     latest = latestArticles;
     mostRead = mostReadArticles.length > 0 ? mostReadArticles : latestArticles.slice(0, 5);
+    sportsArticles = sports as any[];
   } catch {
     // DB غير متصلة
   }
@@ -65,37 +70,43 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ━━━━━━━━━━━━ Live Pulse Bar ━━━━━━━━━━━━ */}
+      {/* Live Pulse Bar */}
       <LivePulseBar />
 
       <div className="max-w-[1320px] mx-auto px-4 lg:px-8 py-8 space-y-12">
 
-        {/* ━━━━━━━━━━━━ Hero Section ━━━━━━━━━━━━ */}
+        {/* Hero Section */}
         <HeroSection lead={showLead} side={showSide} />
 
-        {/* ━━━━━━━━━━━━ AI Daily Brief ━━━━━━━━━━━━ */}
+        {/* AI Daily Brief */}
         {briefArticles.length > 0 && (
           <AIBriefWidget articles={briefArticles} />
         )}
 
-        {/* ━━━━━━━━━━━━ آخر الأخبار — يعرض كل الأخبار ━━━━━━━━━━━━ */}
+        {/* ━━━━━━━━━━━━ قسم الرياضة (خلفية ممتدة) ━━━━━━━━━━━━ */}
+        {sportsArticles.length > 0 && (
+          <SportsSection articles={sportsArticles} />
+        )}
+
+        {/* آخر الأخبار */}
         {latest.length > 0 && (
           <LatestNewsGrid articles={latest} />
         )}
 
-        {/* ━━━━━━━━━━━━ Editor's Picks ━━━━━━━━━━━━ */}
+        {/* ━━━━━━━━━━━━ قسم الفيديو (تجريبي) ━━━━━━━━━━━━ */}
+        <VideoSection />
+
+        {/* Editor's Picks */}
         {editorsPicks.length > 0 && (
           <EditorsPicks articles={editorsPicks} />
         )}
 
-        {/* ━━━━━━━━━━━━ Most Read Today ━━━━━━━━━━━━ */}
+        {/* Most Read Today */}
         {mostRead.length > 0 && (
           <MostReadStrip articles={mostRead} />
         )}
 
-
-
-        {/* ━━━━━━━━━━━━ Newsletter Hero ━━━━━━━━━━━━ */}
+        {/* Newsletter Hero */}
         <NewsletterHero />
       </div>
     </>
