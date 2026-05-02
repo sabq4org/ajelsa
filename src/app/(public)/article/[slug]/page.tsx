@@ -1,3 +1,6 @@
+// تحديث صفحة الخبر كل 60 ثانية (ISR) — أو عند إعادة النشر
+export const revalidate = 60;
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getArticleBySlug } from "@/lib/queries/articles";

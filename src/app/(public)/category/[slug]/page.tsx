@@ -1,4 +1,5 @@
-export const dynamic = "force-dynamic";
+// تحديث الصفحة كل 60 ثانية (ISR) — سرعة فائقة في التنقل
+export const revalidate = 60;
 
 import { notFound } from "next/navigation";
 import Link from "next/link";

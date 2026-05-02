@@ -1,4 +1,5 @@
-export const dynamic = "force-dynamic";
+// تحديث الصفحة كل 30 ثانية (ISR) — أسرع بـ 10 مرات من force-dynamic
+export const revalidate = 30;
 
 import { StoryCard } from "@/components/public/StoryCard";
 import {
