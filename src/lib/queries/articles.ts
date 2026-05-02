@@ -164,7 +164,7 @@ export async function getCategoryArticles(
   limit = 20,
   offset = 0
 ) {
-  return db
+  const rows = await db
     .select({
       id: articles.id,
       slug: articles.slug,
@@ -174,25 +174,44 @@ export async function getCategoryArticles(
       isBreaking: articles.isBreaking,
       publishedAt: articles.publishedAt,
       viewCount: articles.viewCount,
-      category: { name: categories.name, slug: categories.slug },
-      author: { fullName: users.fullName },
+      categoryName: categories.name,
+      categorySlug: categories.slug,
+      authorName: users.fullName,
     })
     .from(articles)
     .innerJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(users, eq(articles.authorId, users.id))
-    .where(and(PUBLISHED_FILTER, eq(categories.slug, categorySlug)))
+    .where(
+      and(
+        eq(articles.status, "published" as any),
+        isNotNull(articles.publishedAt),
+        eq(categories.slug, categorySlug)
+      )
+    )
     .orderBy(desc(articles.publishedAt))
     .limit(limit)
     .offset(offset);
+
+  // تحويل البيانات للشكل المتوقع من StoryCard
+  return rows.map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    excerpt: r.excerpt,
+    featuredImageUrl: r.featuredImageUrl,
+    isBreaking: r.isBreaking,
+    publishedAt: r.publishedAt,
+    viewCount: r.viewCount,
+    category: { name: r.categoryName ?? "", slug: r.categorySlug ?? "" },
+    author: r.authorName ? { fullName: r.authorName } : null,
+  }));
 }
 
-/** كل الأقسام */
+/** كل الأقسام (بدون cache لضمان البيانات الحديثة) */
 export async function getActiveCategories() {
-  return cacheRemember("categories:active", 60 * 60, async () =>
-    db
-      .select()
-      .from(categories)
-      .where(eq(categories.isActive, true))
-      .orderBy(categories.position)
-  );
+  return db
+    .select()
+    .from(categories)
+    .where(eq(categories.isActive, true))
+    .orderBy(categories.position);
 }

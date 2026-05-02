@@ -16,20 +16,26 @@ export default async function CategoryPage({ params }: Props) {
   let categoryName = "";
   let articles: any[] = [];
 
+  // جلب الأخبار مباشرة
+  let items: any[] = [];
   try {
-    const [cats, items] = await Promise.all([
-      getActiveCategories(),
-      getCategoryArticles(slug, 24, 0),
-    ]);
-
-    const cat = cats.find((c: any) => c.slug === slug);
-    if (!cat) return notFound();
-
-    categoryName = cat.name;
-    articles = items as any[];
-  } catch {
-    return notFound();
+    items = await getCategoryArticles(slug, 24, 0);
+  } catch (e) {
+    console.error("[category]", slug, e);
   }
+
+  // جلب اسم القسم
+  try {
+    const cats = await getActiveCategories();
+    const cat = (cats as any[]).find((c) => c.slug === slug);
+    if (!cat) return notFound();
+    categoryName = cat.name;
+  } catch {
+    // لو فشل جلب الأقسام، استخدم السلوج كاسم
+    categoryName = slug;
+  }
+
+  articles = items;
 
   return (
     <div className="max-w-[1320px] mx-auto px-8 py-9">
