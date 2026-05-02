@@ -6,6 +6,7 @@ const config: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.r2.dev" },
       { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "ajel.sa" },
       { protocol: "https", hostname: "cdn.ajel.sa" },
     ],

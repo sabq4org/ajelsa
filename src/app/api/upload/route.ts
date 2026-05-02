@@ -1,11 +1,13 @@
 /**
- * /api/upload — Image upload to R2
+ * /api/upload — Image upload (Cloudinary → R2 → Local fallback)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/storage";
+import { uploadToCloudinary, isCloudinaryReady } from "@/lib/cloudinary";
 import { db, media } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
+import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,11 +26,23 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const ext = file.name.split(".").pop() || "bin";
 
-    const { key, url } = await uploadFile(buffer, {
-      folder: "articles",
-      extension: ext,
-      contentType: file.type,
-    });
+    let url: string;
+    let key: string;
+
+    // ① Cloudinary
+    if (isCloudinaryReady()) {
+      url = await uploadToCloudinary(buffer, "articles");
+      key = url.split("/").slice(-2).join("/");
+    } else {
+      // ② R2 / Local
+      const result = await uploadFile(buffer, {
+        folder: "articles",
+        extension: ext,
+        contentType: file.type,
+      });
+      url = result.url;
+      key = result.key;
+    }
 
     const [record] = await db
       .insert(media)

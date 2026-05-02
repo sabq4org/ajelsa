@@ -8,6 +8,7 @@ export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/storage";
+import { uploadToCloudinary, isCloudinaryReady } from "@/lib/cloudinary";
 
 export async function POST(req: NextRequest) {
   // ── 2. قراءة الطلب ────────────────────────────────────────────────────
@@ -158,6 +159,17 @@ Culturally appropriate for Saudi Arabia. No text, no watermarks.`;
 async function saveAndReturn(base64: string, mime: string, ext: string): Promise<NextResponse> {
   const buffer = Buffer.from(base64, "base64");
 
+  // ① Cloudinary — التفضيل الأول
+  if (isCloudinaryReady()) {
+    try {
+      const url = await uploadToCloudinary(buffer, "ai-generated");
+      return NextResponse.json({ url });
+    } catch (e: any) {
+      console.error("[generate-image] Cloudinary upload failed:", e.message);
+    }
+  }
+
+  // ② R2 — التفضيل الثاني
   const r2Ready = !!(
     process.env.R2_ACCOUNT_ID &&
     process.env.R2_ACCESS_KEY_ID &&
@@ -170,9 +182,10 @@ async function saveAndReturn(base64: string, mime: string, ext: string): Promise
       const { url } = await uploadFile(buffer, { folder: "ai-generated", extension: ext, contentType: mime });
       return NextResponse.json({ url });
     } catch (e: any) {
-      return NextResponse.json({ error: `فشل رفع الصورة: ${e.message}` }, { status: 500 });
+      console.error("[generate-image] R2 upload failed:", e.message);
     }
   }
 
+  // ③ حل أخير — Data URL
   return NextResponse.json({ url: `data:${mime};base64,${base64}` });
 }
