@@ -47,7 +47,7 @@ function stripInlineFeaturedImage<T extends { featuredImageUrl?: string | null }
   return row;
 }
 
-/** أحدث الأخبار (للصفحة الرئيسية — تستثني excludeFromHome) */
+/** أحدث الأخبار — كل الأخبار المنشورة بترتيب النشر */
 export async function getLatestArticles(limit = 10): Promise<ArticleListItem[]> {
   return db
     .select({
@@ -74,7 +74,7 @@ export async function getLatestArticles(limit = 10): Promise<ArticleListItem[]> 
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(users, eq(articles.authorId, users.id))
-    .where(HOME_FILTER)
+    .where(PUBLISHED_FILTER)
     .orderBy(desc(articles.publishedAt))
     .limit(limit) as unknown as Promise<ArticleListItem[]>;
 }

@@ -7,8 +7,6 @@ export const maxDuration = 30;
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const SYSTEM_PROMPT = `أنت مذيع نشرة أخبار في صحيفة عاجل السعودية.
 
 مهمتك: كتابة نشرة موحدة من 4-5 جمل فقط تربط أهم الأخبار اليوم.
@@ -31,6 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ brief: "" }, { status: 200 });
     }
 
+    const client = new OpenAI({ apiKey });
     const { articles } = await req.json();
 
     if (!Array.isArray(articles) || articles.length === 0) {

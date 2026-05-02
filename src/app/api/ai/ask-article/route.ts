@@ -8,8 +8,6 @@ export const maxDuration = 30;
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const SYSTEM_PROMPT = `أنت مساعد ذكي في صحيفة عاجل السعودية.
 
 ⚠️ القاعدة الأساسية:
@@ -35,6 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "خدمة المساعد غير مفعلة حالياً" }, { status: 503 });
     }
 
+    const client = new OpenAI({ apiKey });
     const { question, articleTitle, articleContent } = await req.json();
 
     if (!question?.trim() || !articleContent?.trim()) {

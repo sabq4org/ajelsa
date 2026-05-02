@@ -12,6 +12,7 @@ import { Search, Bell, Menu, Moon, TrendingUp } from "lucide-react";
 
 const STATIC_NAV: Array<{ label: string; href: string }> = [
   { label: "الرئيسية", href: "/" },
+  { label: "آخر الأخبار", href: "/latest" },
 ];
 
 // تاريخ هجري

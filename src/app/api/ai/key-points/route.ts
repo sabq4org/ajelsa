@@ -7,8 +7,6 @@ export const maxDuration = 30;
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const SYSTEM_PROMPT = `أنت محرر صحفي خبير في صحيفة عاجل السعودية.
 
 مهمتك: استخراج 3-5 نقاط رئيسية من الخبر.
@@ -30,6 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ points: [] }, { status: 200 });
     }
 
+    const client = new OpenAI({ apiKey });
     const { articleTitle, articleContent } = await req.json();
 
     if (!articleContent?.trim()) {
