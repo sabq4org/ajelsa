@@ -20,6 +20,7 @@
     "@anthropic-ai/sdk": "^0.92.0",
     "@aws-sdk/client-s3": "^3.722.0",
     "@aws-sdk/s3-request-presigner": "^3.722.0",
+    "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "^0.10.4",
     "@tailwindcss/typography": "^0.5.15",
     "@tiptap/extension-character-count": "^2.10.4",

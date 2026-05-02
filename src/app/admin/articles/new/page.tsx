@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2 } from "lucide-react";
+import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Sparkles } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
 import { SeoSection } from "@/components/admin/SeoSection";
 import { ArticlePreviewModal } from "@/components/admin/ArticlePreviewModal";
@@ -22,6 +22,7 @@ export default function NewArticlePage() {
   const [isBreaking, setIsBreaking] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [featuredImageUrl, setFeaturedImageUrl] = useState("");
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
@@ -99,6 +100,37 @@ export default function NewArticlePage() {
     } catch (e: any) {
       toast.error("خطأ: " + e.message);
       setSaving(false);
+    }
+  }
+
+  async function handleGenerateImage() {
+    if (!title.trim()) {
+      toast.error("أضف العنوان أولاً لتوليد الصورة");
+      return;
+    }
+    setGeneratingImage(true);
+    try {
+      const res = await fetch("/api/ai/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          excerpt: excerpt.trim() || undefined,
+          category: categories.find((c) => c.id === categoryId)?.name || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "فشل توليد الصورة");
+        return;
+      }
+      const { url } = await res.json();
+      setFeaturedImageUrl(url);
+      toast.success("تم توليد الصورة بنجاح ✨");
+    } catch (e: any) {
+      toast.error("خطأ: " + e.message);
+    } finally {
+      setGeneratingImage(false);
     }
   }
 
@@ -275,6 +307,19 @@ export default function NewArticlePage() {
                 </div>
               </button>
             )}
+
+            {/* زر توليد الصورة بالذكاء الاصطناعي */}
+            <button
+              onClick={handleGenerateImage}
+              disabled={generatingImage}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-burgundy/40 bg-rose-cream/30 text-burgundy text-[13px] font-semibold hover:bg-rose-cream/60 hover:border-burgundy transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {generatingImage ? (
+                <><Loader2 size={14} className="animate-spin" /> جاري توليد الصورة...</>
+              ) : (
+                <><Sparkles size={14} /> توليد صورة بالذكاء الاصطناعي</>
+              )}
+            </button>
           </div>
 
           {/* Category */}
