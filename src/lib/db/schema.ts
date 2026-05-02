@@ -471,6 +471,47 @@ export const auditLogs = pgTable("audit_logs", {
 export type AuditLog = typeof auditLogs.$inferSelect;
 
 // =====================================================
+// POLLS — استطلاعات الرأي
+// =====================================================
+
+export const polls = pgTable("polls", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  question: varchar("question", { length: 500 }).notNull(),
+  articleId: uuid("article_id").references(() => articles.id, { onDelete: "set null" }),
+  isActive: boolean("is_active").notNull().default(true),
+  endsAt: timestamp("ends_at"),
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const pollOptions = pgTable("poll_options", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  pollId: uuid("poll_id").notNull().references(() => polls.id, { onDelete: "cascade" }),
+  text: varchar("text", { length: 300 }).notNull(),
+  votes: integer("votes").notNull().default(0),
+  position: integer("position").notNull().default(0),
+});
+
+export type Poll = typeof polls.$inferSelect;
+export type PollOption = typeof pollOptions.$inferSelect;
+
+// =====================================================
+// NEWSLETTER SUBSCRIBERS — النشرة البريدية
+// =====================================================
+
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 200 }),
+  isActive: boolean("is_active").notNull().default(true),
+  source: varchar("source", { length: 100 }),
+  subscribedAt: timestamp("subscribed_at").notNull().defaultNow(),
+  unsubscribedAt: timestamp("unsubscribed_at"),
+});
+
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+
+// =====================================================
 // TYPE EXPORTS
 // =====================================================
 

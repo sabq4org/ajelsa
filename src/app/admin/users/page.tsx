@@ -2,9 +2,10 @@
 
 import { AdminTopbar } from "@/components/admin/AdminLayout";
 import { useEffect, useState } from "react";
-import { Plus, Edit3, Trash2, Loader2, Users as UsersIcon, Shield } from "lucide-react";
+import { Plus, Edit3, Trash2, Loader2, Users as UsersIcon, Shield, CheckCircle2, XCircle } from "lucide-react";
 import { Modal, ConfirmDialog } from "@/components/admin/Modal";
 import { toast } from "@/components/admin/Toast";
+import { PERMISSIONS } from "@/lib/rbac";
 
 type User = {
   id: string;
@@ -35,9 +36,27 @@ const ROLE_COLORS: Record<string, string> = {
   contributor: "bg-bg-2 text-ink-soft",
 };
 
+const PERMISSIONS_LABELS: Record<string, string> = {
+  publish: "النشر",
+  delete: "الحذف",
+  manage_users: "إدارة المستخدمين",
+  manage_cats: "إدارة الأقسام",
+  view_audit: "سجل النشاطات",
+  manage_ads: "الإعلانات",
+};
+
+const ROLES_ORDER = [
+  { key: "super_admin", label: "مدير عام" },
+  { key: "editor_in_chief", label: "رئيس تحرير" },
+  { key: "editor", label: "محرر" },
+  { key: "writer", label: "كاتب" },
+  { key: "contributor", label: "مساهم" },
+];
+
 export default function UsersPage() {
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"users" | "permissions">("users");
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<Partial<User & { password: string }>>({});
   const [confirmDelete, setConfirmDelete] = useState<User | null>(null);
@@ -129,7 +148,71 @@ export default function UsersPage() {
         }
       />
 
-      <div className="card overflow-hidden p-0">
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setActiveTab("users")}
+          className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all ${
+            activeTab === "users" ? "bg-burgundy text-white shadow-red" : "bg-paper border border-line text-ink-2 hover:bg-bg-2"
+          }`}
+        >
+          <span className="flex items-center gap-1.5"><UsersIcon size={13} /> المستخدمون</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("permissions")}
+          className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all ${
+            activeTab === "permissions" ? "bg-burgundy text-white shadow-red" : "bg-paper border border-line text-ink-2 hover:bg-bg-2"
+          }`}
+        >
+          <span className="flex items-center gap-1.5"><Shield size={13} /> الصلاحيات</span>
+        </button>
+      </div>
+
+      {activeTab === "permissions" && (
+        <div className="card overflow-hidden p-0">
+          <div className="p-5 border-b border-line">
+            <h2 className="text-[15px] font-bold text-ink flex items-center gap-2"><Shield size={16} className="text-burgundy" /> مصفوفة صلاحيات الأدوار</h2>
+            <p className="text-[12px] text-ink-soft mt-1">توضح ما يستطيع كل دور فعله داخل النظام</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-bg-2 border-b border-line">
+                  <th className="text-right px-5 py-3 text-[11px] font-semibold text-ink-soft tracking-wide w-40">الدور</th>
+                  {Object.entries(PERMISSIONS_LABELS).map(([key, label]) => (
+                    <th key={key} className="px-4 py-3 text-center text-[11px] font-semibold text-ink-soft tracking-wide">{label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ROLES_ORDER.map((role) => (
+                  <tr key={role.key} className="border-b border-line-soft last:border-b-0 hover:bg-bg-2/40">
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${ROLE_COLORS[role.key] ?? "bg-bg-2"}`}>
+                        <Shield size={10} /> {role.label}
+                      </span>
+                    </td>
+                    {Object.keys(PERMISSIONS_LABELS).map((perm) => {
+                      const allowed = (PERMISSIONS[perm as keyof typeof PERMISSIONS] as readonly string[]).includes(role.key);
+                      return (
+                        <td key={perm} className="px-4 py-3.5 text-center">
+                          {allowed ? (
+                            <CheckCircle2 size={18} className="text-emerald-500 mx-auto" />
+                          ) : (
+                            <XCircle size={18} className="text-ink-soft/30 mx-auto" />
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "users" && <div className="card overflow-hidden p-0">
         {loading ? (
           <div className="py-16 grid place-items-center text-ink-soft"><Loader2 className="animate-spin" /></div>
         ) : items.length === 0 ? (
@@ -193,7 +276,7 @@ export default function UsersPage() {
             </tbody>
           </table>
         )}
-      </div>
+      </div>}
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={form.id ? "تعديل مستخدم" : "مستخدم جديد"}>
         <div className="space-y-4">

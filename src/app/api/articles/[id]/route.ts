@@ -131,7 +131,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const delSession = await requireRole("editor");
+    const delSession = await requireRole("editor_in_chief");
     const { id } = await params;
     const [deleted] = await db.select({ title: articles.title }).from(articles).where(eq(articles.id, id)).limit(1);
     await db.delete(articles).where(eq(articles.id, id));

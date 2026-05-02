@@ -5,28 +5,39 @@ import { desc } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const rows = await db.select().from(ads).orderBy(desc(ads.createdAt));
-    return NextResponse.json({ ads: rows });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    const result = await db.select().from(ads).orderBy(desc(ads.createdAt));
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("GET /api/ads error:", error);
+    return NextResponse.json({ error: "Failed to fetch ads" }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const [ad] = await db.insert(ads).values({
-      title: body.title,
-      position: body.position,
-      imageUrl: body.imageUrl || null,
-      linkUrl: body.linkUrl || null,
-      advertiser: body.advertiser || null,
-      isActive: body.isActive ?? true,
-      startDate: body.startDate ? new Date(body.startDate) : null,
-      endDate: body.endDate ? new Date(body.endDate) : null,
-    }).returning();
-    return NextResponse.json({ ad }, { status: 201 });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 400 });
+    const { title, position, imageUrl, linkUrl, advertiser, startDate, endDate } = body;
+
+    if (!title || !position) {
+      return NextResponse.json({ error: "title and position are required" }, { status: 400 });
+    }
+
+    const [ad] = await db
+      .insert(ads)
+      .values({
+        title,
+        position,
+        imageUrl: imageUrl || null,
+        linkUrl: linkUrl || null,
+        advertiser: advertiser || null,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+      })
+      .returning();
+
+    return NextResponse.json(ad, { status: 201 });
+  } catch (error) {
+    console.error("POST /api/ads error:", error);
+    return NextResponse.json({ error: "Failed to create ad" }, { status: 500 });
   }
 }

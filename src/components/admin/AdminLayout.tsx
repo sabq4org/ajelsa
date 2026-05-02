@@ -25,6 +25,8 @@ import {
   ClipboardList,
   Zap,
   GitBranch,
+  BarChart2,
+  Mail,
 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
@@ -49,12 +51,19 @@ const MENU_GROUPS = [
       { icon: Tag, label: "الوسوم", href: "/admin/tags" },
       { icon: ImageIcon, label: "المكتبة", href: "/admin/media" },
       { icon: MessageCircle, label: "التعليقات", href: "/admin/comments" },
+      { icon: BarChart2, label: "استطلاعات الرأي", href: "/admin/polls" },
     ],
   },
   {
     label: "إعلانات",
     items: [
       { icon: Megaphone, label: "إدارة الإعلانات", href: "/admin/ads" },
+    ],
+  },
+  {
+    label: "النشرة",
+    items: [
+      { icon: Mail, label: "النشرة البريدية", href: "/admin/newsletter" },
     ],
   },
   {
