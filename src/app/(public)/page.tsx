@@ -40,7 +40,7 @@ export default async function HomePage() {
   try {
     const [featured, latestArticles, mostReadArticles] = await Promise.all([
       getFeaturedArticles(8),
-      getLatestArticles(20),
+      getLatestArticles(50),
       getMostReadArticles(5),
     ]);
 
@@ -81,13 +81,13 @@ export default async function HomePage() {
           <AIBriefWidget articles={briefArticles} />
         )}
 
-        {/* ━━━━━━━━━━━━ Bento News Grid ━━━━━━━━━━━━ */}
+        {/* ━━━━━━━━━━━━ آخر الأخبار — Bento Grid ━━━━━━━━━━━━ */}
         {latest.length >= 3 && (
           <section>
             <SectionHeader
               icon={<Layers size={18} />}
-              title="أبرز الأخبار"
-              subtitle="مختارات من تحرير عاجل"
+              title="آخر الأخبار"
+              subtitle="جميع الأخبار بترتيب النشر"
             />
             <BentoNewsGrid articles={latest.slice(sideStories.length + 1, sideStories.length + 7)} />
           </section>
@@ -103,17 +103,17 @@ export default async function HomePage() {
           <MostReadStrip articles={mostRead} />
         )}
 
-        {/* ━━━━━━━━━━━━ Latest News (قائمة كاملة) ━━━━━━━━━━━━ */}
+        {/* ━━━━━━━━━━━━ المزيد من الأخبار (شبكة 3 أعمدة) ━━━━━━━━━━━━ */}
         {latest.length > 7 && (
           <section>
             <SectionHeader
               icon={<Newspaper size={18} />}
-              title="آخر الأخبار"
-              subtitle="جميع الأخبار حسب التسلسل الزمني"
+              title="المزيد"
+              subtitle="تصفح باقي أخبار اليوم"
               href="/latest"
             />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {latest.slice(7, 16).map((a: any, i: number) => (
+              {latest.slice(7).map((a: any, i: number) => (
                 <a
                   key={i}
                   href={`/article/${a.slug}`}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, Loader2, Coffee, RefreshCw } from "lucide-react";
+import { Sparkles, Coffee, RefreshCw, Quote } from "lucide-react";
 
 interface Article {
   title: string;
@@ -46,50 +46,78 @@ export function AIBriefWidget({ articles }: Props) {
   }, [articles]);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-burgundy via-burgundy-dark to-burgundy text-white shadow-xl">
-      {/* Decorative shapes */}
-      <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-white/5" />
-      <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-white/5" />
-      <div className="absolute top-1/2 right-1/3 w-32 h-32 rounded-full bg-white/5" />
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-cream/60 via-paper to-rose-cream/40 border border-burgundy/15 shadow-sm hover:shadow-md transition-shadow">
+      {/* زخارف خفيفة في الخلفية */}
+      <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-burgundy/[0.04] blur-2xl" />
+      <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-burgundy/[0.04] blur-2xl" />
 
-      <div className="relative p-6 lg:p-7">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md grid place-items-center shadow-inner">
-            <Sparkles size={20} className="text-yellow-300" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-extrabold">نشرة عاجل اليومية</h3>
-              <span className="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold tracking-wider">AI</span>
+      {/* علامة اقتباس زخرفية كبيرة */}
+      <Quote
+        className="absolute top-6 right-6 text-burgundy/8"
+        size={120}
+        strokeWidth={1}
+      />
+
+      <div className="relative p-6 lg:p-8">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-5">
+          <div className="relative">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-burgundy to-burgundy-dark grid place-items-center shadow-md">
+              <Sparkles size={18} className="text-yellow-300" />
             </div>
-            <p className="text-[11px] opacity-80 flex items-center gap-1.5 mt-0.5">
-              <Coffee size={11} />
+            {/* نقطة حية */}
+            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-paper">
+              <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-60" />
+            </span>
+          </div>
+
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-lg font-extrabold text-ink -tracking-[0.01em]">
+                نشرة عاجل اليومية
+              </h3>
+              <span className="text-[9px] bg-burgundy text-white px-2 py-0.5 rounded-full font-bold tracking-wider">
+                AI
+              </span>
+            </div>
+            <p className="text-[11px] text-ink-soft flex items-center gap-1.5 mt-0.5">
+              <Coffee size={11} className="text-burgundy" />
               قراءة في 60 ثانية — أهم ما يحدث اليوم
             </p>
           </div>
         </div>
 
+        {/* النشرة نفسها */}
         {loading ? (
           <div className="space-y-2 py-2">
-            <div className="h-3 rounded-full bg-white/15 animate-pulse w-full" />
-            <div className="h-3 rounded-full bg-white/15 animate-pulse w-11/12" />
-            <div className="h-3 rounded-full bg-white/15 animate-pulse w-4/5" />
-            <div className="h-3 rounded-full bg-white/15 animate-pulse w-9/12" />
+            <div className="h-3 rounded-full bg-burgundy/10 animate-pulse w-full" />
+            <div className="h-3 rounded-full bg-burgundy/10 animate-pulse w-11/12" />
+            <div className="h-3 rounded-full bg-burgundy/10 animate-pulse w-4/5" />
+            <div className="h-3 rounded-full bg-burgundy/10 animate-pulse w-9/12" />
           </div>
         ) : brief ? (
-          <p className="text-[14px] leading-loose opacity-95 font-medium">
-            {brief}
-          </p>
+          <div className="relative">
+            {/* خط عنابي على اليمين كاقتباس صحفي */}
+            <div className="absolute top-0 bottom-0 right-0 w-1 bg-gradient-to-b from-burgundy via-burgundy-dark to-burgundy/40 rounded-full" />
+
+            <p className="text-[15px] lg:text-base leading-loose text-ink font-medium pr-5 first-letter:text-3xl first-letter:font-bold first-letter:text-burgundy first-letter:ml-1 first-letter:float-right">
+              {brief}
+            </p>
+          </div>
         ) : (
-          <p className="text-[12px] opacity-70 italic">يحتاج المساعد إلى أخبار أكثر لإعداد النشرة</p>
+          <p className="text-[12px] text-ink-soft italic">
+            يحتاج المساعد إلى أخبار أكثر لإعداد النشرة
+          </p>
         )}
 
-        <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/10">
-          <div className="flex items-center gap-2 text-[10px] opacity-70">
-            <RefreshCw size={10} />
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-5 pt-4 border-t border-burgundy/10">
+          <div className="flex items-center gap-2 text-[10px] text-ink-soft">
+            <RefreshCw size={10} className="text-burgundy" />
             تتجدد كل ساعة
           </div>
-          <span className="text-[10px] opacity-70">
+          <span className="text-[10px] text-ink-soft flex items-center gap-1">
+            <Sparkles size={9} className="text-burgundy" />
             مولد بـ GPT-4o
           </span>
         </div>
