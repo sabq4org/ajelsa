@@ -3,6 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: #fbf7f4;
+    --paper: #ffffff;
+    --bg-2: #f5efe9;
+    --ink: #1f1a1c;
+    --ink-soft: #7a6d72;
+    --ink-2: #4a3f43;
+    --ink-faint: #b3a8ac;
+    --line: #ede4dd;
+    --line-soft: #f3ebe3;
+    --burgundy: #8c1d2b;
+  }
+
+  .dark {
+    --bg: #1a1214;
+    --paper: #231820;
+    --bg-2: #2a1f23;
+    --ink: #f0e8e0;
+    --ink-soft: #b0a0a8;
+    --ink-2: #9a8890;
+    --ink-faint: #6a5860;
+    --line: #3a2830;
+    --line-soft: #2e2228;
+    --burgundy: #8c1d2b;
+  }
+
   html {
     font-family: 'Tajawal', system-ui, sans-serif;
   }

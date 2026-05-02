@@ -10,6 +10,7 @@ import { z } from "zod";
 import { arabicSlug, readingTimeMinutes, stripHtml } from "@/lib/utils";
 import { cacheDeletePattern } from "@/lib/redis";
 import { indexArticle } from "@/lib/search";
+import { logAction } from "@/lib/audit";
 
 const createSchema = z.object({
   title: z.string().min(5).max(300),
@@ -38,8 +39,13 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20"), 100);
   const offset = parseInt(url.searchParams.get("offset") ?? "0");
   const status = url.searchParams.get("status");
+  const breaking = url.searchParams.get("breaking");
 
-  const where = status ? eq(articles.status, status as any) : undefined;
+  const where = (() => {
+    if (breaking === "true") return eq(articles.isBreaking, true);
+    if (status) return eq(articles.status, status as any);
+    return undefined;
+  })();
 
   const items = await db
     .select({
@@ -144,6 +150,15 @@ export async function POST(req: NextRequest) {
         featuredImageUrl: created.featuredImageUrl ?? undefined,
       }).catch(() => {});
     }
+
+    await logAction({
+      userId: session.userId,
+      userFullName: session.fullName,
+      action: "article_created",
+      entityType: "article",
+      entityId: created.id,
+      entityTitle: created.title,
+    });
 
     return NextResponse.json({ article: created }, { status: 201 });
   } catch (err: any) {

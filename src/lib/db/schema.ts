@@ -410,6 +410,38 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
 }));
 
 // =====================================================
+// ADS — الإعلانات
+// =====================================================
+
+export const adPositionEnum = pgEnum("ad_position", [
+  "header_banner",
+  "sidebar_top",
+  "sidebar_bottom",
+  "article_top",
+  "article_middle",
+  "article_bottom",
+  "footer_banner",
+]);
+
+export const ads = pgTable("ads", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: varchar("title", { length: 200 }).notNull(),
+  position: adPositionEnum("position").notNull(),
+  imageUrl: text("image_url"),
+  linkUrl: text("link_url"),
+  advertiser: varchar("advertiser", { length: 200 }),
+  isActive: boolean("is_active").notNull().default(true),
+  impressions: integer("impressions").notNull().default(0),
+  clicks: integer("clicks").notNull().default(0),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type Ad = typeof ads.$inferSelect;
+
+// =====================================================
 // AUDIT LOGS — سجل النشاطات
 // =====================================================
 

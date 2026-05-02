@@ -18,7 +18,15 @@ import {
   Bell,
   Menu,
   X,
+  Moon,
+  Sun,
+  CalendarDays,
+  Megaphone,
+  ClipboardList,
+  Zap,
+  GitBranch,
 } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { ToastHost } from "./Toast";
 
@@ -29,6 +37,9 @@ const MENU_GROUPS = [
       { icon: LayoutDashboard, label: "نظرة عامة", href: "/admin" },
       { icon: Newspaper, label: "الأخبار", href: "/admin/articles" },
       { icon: FileText, label: "خبر جديد", href: "/admin/articles/new" },
+      { icon: Zap, label: "غرفة العاجل", href: "/admin/breaking" },
+      { icon: GitBranch, label: "سير العمل", href: "/admin/workflow" },
+      { icon: CalendarDays, label: "تقويم النشر", href: "/admin/calendar" },
     ],
   },
   {
@@ -41,10 +52,17 @@ const MENU_GROUPS = [
     ],
   },
   {
+    label: "إعلانات",
+    items: [
+      { icon: Megaphone, label: "إدارة الإعلانات", href: "/admin/ads" },
+    ],
+  },
+  {
     label: "إدارة",
     items: [
       { icon: Users, label: "المحررون", href: "/admin/users" },
       { icon: TrendingUp, label: "التحليلات", href: "/admin/analytics" },
+      { icon: ClipboardList, label: "سجل النشاطات", href: "/admin/audit" },
       { icon: Settings, label: "الإعدادات", href: "/admin/settings" },
     ],
   },
@@ -54,10 +72,14 @@ function SidebarContent({
   user,
   pathname,
   onClose,
+  dark,
+  onToggleTheme,
 }: {
   user?: { fullName: string; role: string };
   pathname: string;
   onClose?: () => void;
+  dark?: boolean;
+  onToggleTheme?: () => void;
 }) {
   return (
     <div className="flex flex-col h-full">
@@ -124,7 +146,16 @@ function SidebarContent({
         ))}
       </nav>
 
-      {/* User footer */}
+      {/* Dark mode toggle + User footer */}
+      {onToggleTheme && (
+        <button
+          onClick={onToggleTheme}
+          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[13px] mb-2 text-ink-2 hover:bg-bg-2 hover:text-ink transition-all"
+        >
+          {dark ? <Sun size={16} className="opacity-85" /> : <Moon size={16} className="opacity-85" />}
+          <span>{dark ? "الوضع النهاري" : "الوضع الليلي"}</span>
+        </button>
+      )}
       <div className="bg-bg-2 rounded-xl p-3.5 flex items-center gap-2.5 mt-auto">
         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-burgundy to-burgundy-soft text-white grid place-items-center font-bold text-sm flex-shrink-0">
           {user?.fullName?.[0] ?? "م"}
@@ -149,6 +180,7 @@ export function AdminLayout({
 }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { dark, toggle: toggleTheme } = useTheme();
 
   // Close drawer on route change
   useEffect(() => {
@@ -171,7 +203,7 @@ export function AdminLayout({
     <div className="min-h-screen flex flex-col md:flex-row relative">
       {/* ── DESKTOP SIDEBAR ── */}
       <aside className="hidden md:flex w-[240px] flex-shrink-0 bg-paper border-l border-line p-5 h-screen sticky top-0 flex-col">
-        <SidebarContent user={user} pathname={pathname} />
+        <SidebarContent user={user} pathname={pathname} dark={dark} onToggleTheme={toggleTheme} />
       </aside>
 
       {/* ── MOBILE OVERLAY DRAWER ── */}
@@ -191,6 +223,8 @@ export function AdminLayout({
           user={user}
           pathname={pathname}
           onClose={() => setDrawerOpen(false)}
+          dark={dark}
+          onToggleTheme={toggleTheme}
         />
       </aside>
 
@@ -206,10 +240,18 @@ export function AdminLayout({
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="عاجل" className="h-8 w-auto object-contain" />
-          <button className="w-9 h-9 grid place-items-center rounded-xl border border-line text-ink-2 hover:text-burgundy transition-colors relative">
-            <Bell size={16} />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-burgundy border-2 border-paper" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={toggleTheme}
+              className="w-9 h-9 grid place-items-center rounded-xl border border-line text-ink-2 hover:text-burgundy transition-colors"
+            >
+              {dark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button className="w-9 h-9 grid place-items-center rounded-xl border border-line text-ink-2 hover:text-burgundy transition-colors relative">
+              <Bell size={16} />
+              <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-burgundy border-2 border-paper" />
+            </button>
+          </div>
         </div>
 
         <main className="flex-1 p-4 md:p-7 md:px-8 overflow-x-hidden">

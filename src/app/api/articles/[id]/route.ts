@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, articles, articleRevisions } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth";
+import { logAction } from "@/lib/audit";
 import { z } from "zod";
 import { stripHtml, readingTimeMinutes } from "@/lib/utils";
 import { cacheDeletePattern } from "@/lib/redis";
@@ -102,6 +103,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       removeArticleFromIndex(updated.id).catch(() => {});
     }
 
+    // Determine audit action
+    const auditAction = data.status === "published" && existing.status !== "published"
+      ? "article_published"
+      : data.status === "archived"
+      ? "article_archived"
+      : "article_updated";
+
+    await logAction({
+      userId: session.userId,
+      userFullName: session.fullName,
+      action: auditAction,
+      entityType: "article",
+      entityId: updated.id,
+      entityTitle: updated.title,
+      details: data.status ? { status: data.status, previousStatus: existing.status } : undefined,
+    });
+
     return NextResponse.json({ article: updated });
   } catch (err: any) {
     if (err.message === "FORBIDDEN") return NextResponse.json({ error: "صلاحيات غير كافية" }, { status: 403 });
@@ -113,11 +131,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireRole("editor");
+    const delSession = await requireRole("editor");
     const { id } = await params;
+    const [deleted] = await db.select({ title: articles.title }).from(articles).where(eq(articles.id, id)).limit(1);
     await db.delete(articles).where(eq(articles.id, id));
     await cacheDeletePattern("articles:*");
     removeArticleFromIndex(id).catch(() => {});
+
+    await logAction({
+      userId: delSession.userId,
+      userFullName: delSession.fullName,
+      action: "article_deleted",
+      entityType: "article",
+      entityId: id,
+      entityTitle: deleted?.title,
+    });
+
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 403 });
