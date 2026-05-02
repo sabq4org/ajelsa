@@ -242,7 +242,7 @@ export async function getKeywordArticles(keyword: string, limit = 24) {
     .orderBy(desc(articles.publishedAt))
     .limit(limit);
 
-  return rows.map((r) => ({
+  return rows.map((r: any) => ({
     id: r.id,
     slug: r.slug,
     title: r.title,
