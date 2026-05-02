@@ -40,18 +40,31 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 3. بناء البرومبت ──────────────────────────────────────────────────
-  const styleGuide = style === "illustration"
-    ? "Modern flat digital illustration style, clean vector-like art, soft pastel colors, professional infographic look, 2D icons and characters, similar to medical/tech explainer artwork. Friendly and contemporary."
-    : "Photorealistic professional news photography, high-quality photojournalism, realistic lighting and textures, documentary feel.";
+  const isIllustration = style === "illustration";
 
-  const prompt = `Create a 16:9 news image for a Saudi Arabic news article.
+  const prompt = isIllustration
+    ? `IMPORTANT: This must be a FLAT DIGITAL ILLUSTRATION — NOT a photograph.
+Draw a clean, modern 2D vector-style illustration for a news article.
+Title: ${title}
+${excerpt ? `Summary: ${excerpt}` : ""}
+${category ? `Topic: ${category}` : ""}
+
+STYLE REQUIREMENTS (strictly follow):
+- Flat design, vector illustration aesthetic
+- Soft pastel colors, clean shapes
+- 2D icons, simplified characters
+- Similar to medical / tech explainer infographic art
+- Light blue/teal background tones with accent colors
+- NOT photorealistic, NOT 3D render, NOT photograph
+- No text, no letters, no watermarks`
+    : `Create a photorealistic professional news photograph.
 Title: ${title}
 ${excerpt ? `Summary: ${excerpt}` : ""}
 ${category ? `Category: ${category}` : ""}
 
-Style: ${styleGuide}
-Culturally appropriate for Saudi Arabia and the Gulf region.
-Absolutely NO text, NO Arabic or English letters, NO words, NO watermarks, NO logos anywhere in the image.`;
+Style: high-quality photojournalism, realistic lighting, documentary feel.
+Culturally appropriate for Saudi Arabia.
+No text, no watermarks, no logos.`;
 
   // ── 4. استدعاء Nano Banana Pro (gemini-3-pro-image-preview) ──────────────
   let geminiRes: Response;
