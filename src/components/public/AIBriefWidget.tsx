@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, Coffee, RefreshCw, Quote } from "lucide-react";
+import { Sparkles, Coffee, RefreshCw } from "lucide-react";
 
 interface Article {
   title: string;
@@ -51,13 +51,6 @@ export function AIBriefWidget({ articles }: Props) {
       <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-burgundy/[0.04] blur-2xl" />
       <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-burgundy/[0.04] blur-2xl" />
 
-      {/* علامة اقتباس زخرفية كبيرة */}
-      <Quote
-        className="absolute top-6 right-6 text-burgundy/8"
-        size={120}
-        strokeWidth={1}
-      />
-
       <div className="relative p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
@@ -98,9 +91,9 @@ export function AIBriefWidget({ articles }: Props) {
         ) : brief ? (
           <div className="relative">
             {/* خط عنابي على اليمين كاقتباس صحفي */}
-            <div className="absolute top-0 bottom-0 right-0 w-1 bg-gradient-to-b from-burgundy via-burgundy-dark to-burgundy/40 rounded-full" />
+            <div className="absolute top-1 bottom-1 right-0 w-[3px] bg-gradient-to-b from-burgundy via-burgundy-dark to-burgundy/40 rounded-full" />
 
-            <p className="text-[15px] lg:text-base leading-loose text-ink font-medium pr-5 first-letter:text-3xl first-letter:font-bold first-letter:text-burgundy first-letter:ml-1 first-letter:float-right">
+            <p className="text-[15px] lg:text-base leading-loose text-ink font-medium pr-5">
               {brief}
             </p>
           </div>
