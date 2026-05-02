@@ -18,10 +18,12 @@ export default async function CategoryPage({ params }: Props) {
 
   // جلب الأخبار مباشرة
   let items: any[] = [];
+  let fetchError = "";
   try {
     items = await getCategoryArticles(slug, 24, 0);
-  } catch (e) {
+  } catch (e: any) {
     console.error("[category]", slug, e);
+    fetchError = e.message;
   }
 
   // جلب اسم القسم
@@ -51,6 +53,12 @@ export default async function CategoryPage({ params }: Props) {
           {articles.length > 0 ? `${articles.length}+ خبر` : ""}
         </span>
       </div>
+
+      {fetchError && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6">
+          خطأ في جلب البيانات: {fetchError}
+        </div>
+      )}
 
       {/* Articles grid */}
       {articles.length === 0 ? (

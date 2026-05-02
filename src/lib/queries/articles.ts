@@ -169,29 +169,38 @@ export async function getCategoryArticles(
   limit = 20,
   offset = 0
 ) {
-  const result = await db.execute(
-    sql`
-      SELECT
-        a.id, a.slug, a.title, a.excerpt,
-        a.featured_image_url  AS "featuredImageUrl",
-        a.is_breaking         AS "isBreaking",
-        a.published_at        AS "publishedAt",
-        a.view_count          AS "viewCount",
-        c.name                AS "categoryName",
-        c.slug                AS "categorySlug",
-        u.full_name           AS "authorName"
-      FROM articles a
-      INNER JOIN categories c ON a.category_id = c.id
-      LEFT  JOIN users u      ON a.author_id   = u.id
-      WHERE a.status = 'published'
-        AND a.published_at IS NOT NULL
-        AND c.slug = ${categorySlug}
-      ORDER BY a.published_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `
-  );
+  let result: any;
+  try {
+    result = await db.execute(
+      sql`
+        SELECT
+          a.id, a.slug, a.title, a.excerpt,
+          a.featured_image_url  AS "featuredImageUrl",
+          a.is_breaking         AS "isBreaking",
+          a.published_at        AS "publishedAt",
+          a.view_count          AS "viewCount",
+          c.name                AS "categoryName",
+          c.slug                AS "categorySlug",
+          u.full_name           AS "authorName"
+        FROM articles a
+        INNER JOIN categories c ON a.category_id = c.id
+        LEFT  JOIN users u      ON a.author_id   = u.id
+        WHERE a.status = 'published'
+          AND a.published_at IS NOT NULL
+          AND c.slug = ${categorySlug}
+        ORDER BY a.published_at DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `
+    );
+  } catch (err: any) {
+    console.error("[getCategoryArticles] RAW SQL ERROR:", err);
+    throw err;
+  }
 
-  const rows = (result?.rows ?? result) as any[];
+  // Neon HTTP (serverless) returns result.rows directly sometimes, or { rows: [...] }
+  const rows = Array.isArray(result) ? result : (result?.rows ?? []);
+  console.log(`[getCategoryArticles] Found ${rows.length} rows for category: ${categorySlug}`);
+
   return rows.map((r) => ({
     id: r.id,
     slug: r.slug,
