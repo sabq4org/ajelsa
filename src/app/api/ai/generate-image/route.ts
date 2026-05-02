@@ -8,10 +8,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.AI_INTEGRATIONS_GEMINI_API_KEY ||
+    process.env.GOOGLE_GEMINI_API_KEY;
+
   if (!apiKey) {
+    const available = Object.keys(process.env)
+      .filter((k) => k.toLowerCase().includes("gemini") || k.toLowerCase().includes("google"))
+      .join(", ") || "لا يوجد";
+    console.error("[generate-image] missing API key. Found keys:", available);
     return NextResponse.json(
-      { error: "GEMINI_API_KEY غير مضبوط في متغيرات البيئة" },
+      { error: `GEMINI_API_KEY غير مضبوط (متاح: ${available})` },
       { status: 500 }
     );
   }
