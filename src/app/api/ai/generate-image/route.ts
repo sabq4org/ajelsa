@@ -66,29 +66,33 @@ Style: high-quality photojournalism, realistic lighting, documentary feel.
 Culturally appropriate for Saudi Arabia.
 No text, no watermarks, no logos.`;
 
-  // ── 4. استدعاء Nano Banana Pro (gemini-3-pro-image-preview) ──────────────
+  // ── 4. استدعاء Imagen 4 (predict endpoint) ───────────────────────────
   let geminiRes: Response;
   try {
     geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["IMAGE"] },
+          instances: [{ prompt }],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: "16:9",
+            ...(isIllustration ? { imageStyle: "DIGITAL_ART" } : {}),
+          },
         }),
       }
     );
   } catch (e: any) {
-    return NextResponse.json({ error: `فشل الاتصال بـ Nano Banana Pro: ${e.message}` }, { status: 502 });
+    return NextResponse.json({ error: `فشل الاتصال بـ Imagen 4: ${e.message}` }, { status: 502 });
   }
 
   if (!geminiRes.ok) {
     const errText = await geminiRes.text().catch(() => "");
-    console.error("[generate-image] Nano Banana Pro error:", geminiRes.status, errText);
+    console.error("[generate-image] Imagen 4 error:", geminiRes.status, errText);
     return NextResponse.json(
-      { error: `Nano Banana Pro رفض الطلب (${geminiRes.status}) — ${errText.slice(0, 300)}` },
+      { error: `Imagen 4 رفض الطلب (${geminiRes.status}) — ${errText.slice(0, 300)}` },
       { status: 502 }
     );
   }
@@ -98,24 +102,21 @@ No text, no watermarks, no logos.`;
   try {
     data = await geminiRes.json();
   } catch (e: any) {
-    return NextResponse.json({ error: `فشل قراءة رد النموذج: ${e.message}` }, { status: 502 });
+    return NextResponse.json({ error: `فشل قراءة رد Imagen 4: ${e.message}` }, { status: 502 });
   }
 
-  // generateContent response: { candidates[0].content.parts[{inlineData}] }
-  const parts: any[] = data?.candidates?.[0]?.content?.parts ?? [];
-  const imagePart = parts.find((p: any) => p.inlineData?.data);
-
-  if (!imagePart) {
-    const reason = data?.candidates?.[0]?.finishReason ?? "UNKNOWN";
-    console.error("[generate-image] no image part. finishReason:", reason);
+  // Imagen 4 response: { predictions: [{ bytesBase64Encoded, mimeType }] }
+  const prediction = data?.predictions?.[0];
+  if (!prediction?.bytesBase64Encoded) {
+    console.error("[generate-image] no image in Imagen 4 response:", JSON.stringify(data).slice(0, 400));
     return NextResponse.json(
-      { error: `لم يتمكن النموذج من توليد الصورة (${reason}) — جرب عنواناً مختلفاً` },
+      { error: `لم يتمكن النموذج من توليد الصورة — جرب عنواناً مختلفاً` },
       { status: 422 }
     );
   }
 
-  const base64: string = imagePart.inlineData.data;
-  const mime: string = imagePart.inlineData.mimeType ?? "image/jpeg";
+  const base64: string = prediction.bytesBase64Encoded;
+  const mime: string = prediction.mimeType ?? "image/jpeg";
   const ext = mime.split("/")[1]?.split(";")[0] ?? "jpg";
   const buffer = Buffer.from(base64, "base64");
 
