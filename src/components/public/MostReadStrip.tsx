@@ -21,28 +21,35 @@ export function MostReadStrip({ articles }: Props) {
   if (items.length === 0) return null;
 
   return (
-    <section className="bg-paper rounded-3xl border border-line shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-l from-burgundy via-burgundy-dark to-burgundy text-white px-6 py-4 flex items-center justify-between">
+    <section>
+      {/* Header أنيق */}
+      <div className="flex items-end justify-between mb-7 pb-3 border-b-2 border-burgundy relative">
+        <span className="absolute -bottom-[3px] right-0 w-20 h-1 bg-burgundy rounded-t" />
+
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md grid place-items-center">
-            <Flame size={18} className="text-yellow-300" />
+          <div className="w-10 h-10 rounded-xl bg-rose-cream grid place-items-center text-burgundy">
+            <Flame size={18} />
           </div>
           <div>
-            <h2 className="text-lg font-extrabold">الأكثر قراءة اليوم</h2>
-            <p className="text-[11px] opacity-80">القائمة الذهبية للقراء</p>
+            <h2 className="text-2xl font-extrabold text-ink -tracking-[0.02em] flex items-center gap-2.5">
+              الأكثر قراءة اليوم
+            </h2>
+            <p className="text-xs text-ink-soft mt-0.5">القائمة الذهبية للقراء</p>
           </div>
         </div>
-        <span className="text-[10px] font-bold opacity-80 tracking-widest">TOP 5</span>
+
+        <span className="hidden md:inline text-[10px] font-bold text-burgundy tracking-widest opacity-70">
+          TOP {items.length}
+        </span>
       </div>
 
-      {/* List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-px bg-line-soft">
+      {/* البطاقات — مع مسافات بينها */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {items.map((a, i) => (
           <Link
             key={i}
             href={`/article/${a.slug}`}
-            className="group relative bg-paper hover:bg-rose-cream/30 transition-all"
+            className="group bg-paper rounded-2xl border border-line overflow-hidden hover:border-burgundy/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-rose-cream">
               {a.featuredImageUrl ? (
@@ -52,26 +59,26 @@ export function MostReadStrip({ articles }: Props) {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-burgundy/20 to-rose-cream" />
+                <div className="w-full h-full bg-gradient-to-br from-burgundy/15 to-rose-cream" />
               )}
 
-              {/* رقم كبير زجاجي */}
-              <div className="absolute top-2 right-2 w-12 h-12 rounded-2xl bg-burgundy/95 backdrop-blur-md grid place-items-center text-white font-serif text-3xl font-extrabold shadow-xl border border-white/20">
+              {/* رقم زجاجي أنيق في الزاوية */}
+              <div className="absolute top-2 right-2 w-11 h-11 rounded-xl bg-paper/95 backdrop-blur-md grid place-items-center text-burgundy font-serif text-2xl font-extrabold shadow-lg border border-burgundy/10">
                 {ARABIC_NUMS[i]}
               </div>
             </div>
 
             <div className="p-4">
               {a.category && (
-                <span className="text-[10px] font-bold text-burgundy uppercase tracking-wider mb-1.5 block">
+                <span className="text-[10px] font-bold text-burgundy uppercase tracking-widest mb-2 block">
                   {a.category.name}
                 </span>
               )}
-              <h3 className="text-[13px] font-bold text-ink leading-snug line-clamp-2 group-hover:text-burgundy transition-colors mb-2 -tracking-[0.01em]">
+              <h3 className="text-[13px] font-bold text-ink leading-snug line-clamp-2 group-hover:text-burgundy transition-colors mb-2 -tracking-[0.01em] min-h-[2.6rem]">
                 {a.title}
               </h3>
               {a.viewCount != null && a.viewCount > 0 && (
-                <div className="flex items-center gap-1.5 text-[10px] text-ink-soft">
+                <div className="flex items-center gap-1.5 text-[10px] text-ink-soft pt-2 border-t border-line-soft">
                   <Eye size={10} />
                   {formatNumber(a.viewCount)} قراءة
                 </div>
