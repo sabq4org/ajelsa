@@ -105,8 +105,8 @@ function BentoCard({ article, size, className }: CardProps) {
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-rose-cream via-paper to-burgundy/10" />
         )}
-        {/* gradient overlay — عنابي أنيق */}
-        <div className="absolute inset-0 bg-gradient-to-t from-burgundy-dark/95 via-burgundy-dark/35 to-transparent" />
+        {/* gradient overlay — خفيف جداً فقط تحت النص */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-burgundy-dark/85 via-burgundy-dark/40 to-transparent" />
       </div>
 
       {/* Breaking badge */}

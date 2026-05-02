@@ -36,8 +36,8 @@ export function HeroSection({ lead, side }: Props) {
             <div className="w-full h-full bg-gradient-to-br from-burgundy/10 to-rose-cream" />
           )}
 
-          {/* Gradient overlay — عنابي أناقة بدل الأسود */}
-          <div className="absolute inset-0 bg-gradient-to-t from-burgundy-dark/95 via-burgundy-dark/40 to-transparent" />
+          {/* Gradient overlay — خفيف فقط تحت النص */}
+          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-burgundy-dark/85 via-burgundy-dark/40 to-transparent" />
 
           {/* Breaking badge top */}
           {lead.isBreaking && (
