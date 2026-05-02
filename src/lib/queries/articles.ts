@@ -28,7 +28,12 @@ const PUBLISHED_FILTER = and(
   isNotNull(articles.publishedAt)
 );
 
-/** أحدث الأخبار */
+const HOME_FILTER = and(
+  PUBLISHED_FILTER,
+  eq(articles.excludeFromHome, false)
+);
+
+/** أحدث الأخبار (للصفحة الرئيسية — تستثني excludeFromHome) */
 export async function getLatestArticles(limit = 10): Promise<ArticleListItem[]> {
   return db
     .select({
@@ -55,7 +60,7 @@ export async function getLatestArticles(limit = 10): Promise<ArticleListItem[]> 
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(users, eq(articles.authorId, users.id))
-    .where(PUBLISHED_FILTER)
+    .where(HOME_FILTER)
     .orderBy(desc(articles.publishedAt))
     .limit(limit) as unknown as Promise<ArticleListItem[]>;
 }
@@ -123,7 +128,7 @@ export async function getFeaturedArticles(limit = 5): Promise<ArticleListItem[]>
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(users, eq(articles.authorId, users.id))
-    .where(and(PUBLISHED_FILTER, eq(articles.isFeatured, true)))
+    .where(and(HOME_FILTER, eq(articles.isFeatured, true)))
     .orderBy(desc(articles.publishedAt))
     .limit(limit) as unknown as Promise<ArticleListItem[]>;
 }

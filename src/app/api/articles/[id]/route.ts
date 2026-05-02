@@ -24,6 +24,7 @@ const updateSchema = z.object({
   status: z.enum(["draft", "review", "scheduled", "published", "archived"]).optional(),
   isBreaking: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
+  excludeFromHome: z.boolean().optional(),
   isPinned: z.boolean().optional(),
   featuredImageUrl: z.string().url().optional(),
   metaTitle: z.string().optional(),

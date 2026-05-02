@@ -187,6 +187,7 @@ export const articles = pgTable(
     isBreaking: boolean("is_breaking").notNull().default(false),
     isFeatured: boolean("is_featured").notNull().default(false),
     isPinned: boolean("is_pinned").notNull().default(false),
+    excludeFromHome: boolean("exclude_from_home").notNull().default(false),
     allowComments: boolean("allow_comments").notNull().default(true),
 
     // scheduling

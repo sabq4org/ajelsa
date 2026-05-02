@@ -21,6 +21,7 @@ export default function NewArticlePage() {
   const [type, setType] = useState("regular");
   const [isBreaking, setIsBreaking] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [excludeFromHome, setExcludeFromHome] = useState(false);
   const [featuredImageUrl, setFeaturedImageUrl] = useState("");
   const [generatingImage, setGeneratingImage] = useState(false);
   const [isAiImage, setIsAiImage] = useState(false);
@@ -77,6 +78,7 @@ export default function NewArticlePage() {
           status,
           isBreaking,
           isFeatured,
+          excludeFromHome,
           featuredImageUrl: featuredImageUrl || undefined,
           scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
           metaTitle: metaTitle.trim() || undefined,
@@ -413,18 +415,45 @@ export default function NewArticlePage() {
               </div>
             </label>
 
-            <label className="flex items-center gap-3 p-3 bg-bg-2 rounded-xl cursor-pointer hover:bg-rose-cream/40 transition-colors">
-              <input
-                type="checkbox"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="w-4 h-4 accent-burgundy"
-              />
-              <div className="flex-1">
-                <div className="text-[13px] font-semibold text-ink">مميز</div>
-                <div className="text-[11px] text-ink-soft">يظهر في الصفحة الرئيسية</div>
+            {/* ظهور في الصفحة الرئيسية */}
+            <div>
+              <p className="text-[12px] font-semibold text-ink-soft mb-2">الصفحة الرئيسية</p>
+              <div className="space-y-1.5">
+                <label className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer border transition-all ${
+                  isFeatured ? "border-burgundy bg-rose-cream/40" : "border-line bg-bg-2 hover:bg-rose-cream/20"
+                }`}>
+                  <input type="radio" name="homeVisibility" checked={isFeatured}
+                    onChange={() => { setIsFeatured(true); setExcludeFromHome(false); }}
+                    className="accent-burgundy" />
+                  <div>
+                    <div className="text-[12px] font-bold text-ink">⭐ مميز</div>
+                    <div className="text-[11px] text-ink-soft">يظهر في الأخبار البارزة أعلى الصفحة</div>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer border transition-all ${
+                  !isFeatured && !excludeFromHome ? "border-burgundy bg-rose-cream/40" : "border-line bg-bg-2 hover:bg-rose-cream/20"
+                }`}>
+                  <input type="radio" name="homeVisibility" checked={!isFeatured && !excludeFromHome}
+                    onChange={() => { setIsFeatured(false); setExcludeFromHome(false); }}
+                    className="accent-burgundy" />
+                  <div>
+                    <div className="text-[12px] font-bold text-ink">📰 عادي</div>
+                    <div className="text-[11px] text-ink-soft">يظهر في قائمة آخر الأخبار</div>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer border transition-all ${
+                  excludeFromHome ? "border-burgundy bg-rose-cream/40" : "border-line bg-bg-2 hover:bg-rose-cream/20"
+                }`}>
+                  <input type="radio" name="homeVisibility" checked={excludeFromHome}
+                    onChange={() => { setIsFeatured(false); setExcludeFromHome(true); }}
+                    className="accent-burgundy" />
+                  <div>
+                    <div className="text-[12px] font-bold text-ink">🚫 لا يظهر في الرئيسية</div>
+                    <div className="text-[11px] text-ink-soft">يظهر في قسمه فقط</div>
+                  </div>
+                </label>
               </div>
-            </label>
+            </div>
           </div>
 
           {/* Schedule */}
