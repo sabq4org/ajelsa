@@ -105,8 +105,8 @@ function BentoCard({ article, size, className }: CardProps) {
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-rose-cream via-paper to-burgundy/10" />
         )}
-        {/* gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+        {/* gradient overlay — عنابي أنيق */}
+        <div className="absolute inset-0 bg-gradient-to-t from-burgundy-dark/95 via-burgundy-dark/35 to-transparent" />
       </div>
 
       {/* Breaking badge */}
@@ -117,7 +117,7 @@ function BentoCard({ article, size, className }: CardProps) {
         </div>
       )}
 
-      {/* Content */}
+      {/* Content — عنوان واضح فقط بدون نبذة */}
       <div className="absolute bottom-0 inset-x-0 p-4 lg:p-5 text-white z-10">
         {article.category && (
           <span className="inline-block text-[10px] font-bold text-rose-cream tracking-widest uppercase mb-2">
@@ -126,20 +126,14 @@ function BentoCard({ article, size, className }: CardProps) {
         )}
 
         <h3
-          className={`font-extrabold leading-tight mb-2 group-hover:text-rose-cream transition-colors -tracking-[0.01em] ${
-            isBig ? "text-lg lg:text-2xl" : "text-sm lg:text-base"
+          className={`font-extrabold leading-tight group-hover:text-rose-cream transition-colors -tracking-[0.01em] ${
+            isBig ? "text-xl lg:text-3xl mb-3" : "text-base lg:text-lg mb-2"
           }`}
         >
           {article.title}
         </h3>
 
-        {isBig && article.excerpt && (
-          <p className="text-xs lg:text-sm text-white/80 leading-relaxed mb-2 line-clamp-2 hidden lg:block">
-            {article.excerpt}
-          </p>
-        )}
-
-        <div className="flex items-center gap-3 text-[10px] text-white/70">
+        <div className="flex items-center gap-3 text-[10px] text-white/80">
           {article.publishedAt && (
             <span className="flex items-center gap-1">
               <Clock size={9} />
