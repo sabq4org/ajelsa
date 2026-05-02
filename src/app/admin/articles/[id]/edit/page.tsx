@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Trash2, History, Sparkles } from "lucide-react";
+import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Trash2, History, Sparkles, Camera, Palette } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
 import { ConfirmDialog } from "@/components/admin/Modal";
 import { SeoSection } from "@/components/admin/SeoSection";
@@ -51,6 +51,7 @@ export default function EditArticlePage() {
   // AI image generation
   const [generatingImage, setGeneratingImage] = useState(false);
   const [isAiImage, setIsAiImage] = useState(false);
+  const [aiImageStyle, setAiImageStyle] = useState<"photorealistic"|"illustration">("photorealistic");
 
   const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "";
 
@@ -159,6 +160,7 @@ export default function EditArticlePage() {
           title: title.trim(),
           excerpt: excerpt.trim() || undefined,
           category: categories.find((c) => c.id === categoryId)?.name || undefined,
+          style: aiImageStyle,
         }),
       });
       if (!res.ok) {
@@ -334,18 +336,25 @@ export default function EditArticlePage() {
               </button>
             )}
 
-            {/* زر توليد الصورة بالذكاء الاصطناعي */}
-            <button
-              onClick={handleGenerateImage}
-              disabled={generatingImage}
-              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-burgundy/40 bg-rose-cream/30 text-burgundy text-[13px] font-semibold hover:bg-rose-cream/60 hover:border-burgundy transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {generatingImage ? (
-                <><Loader2 size={14} className="animate-spin" /> جاري توليد الصورة...</>
-              ) : (
-                <><Sparkles size={14} /> توليد صورة بالذكاء الاصطناعي</>
-              )}
-            </button>
+            {/* توليد الصورة بالذكاء الاصطناعي */}
+            <div className="mt-3 space-y-2">
+              <div className="grid grid-cols-2 gap-1.5">
+                <button type="button" onClick={() => setAiImageStyle("photorealistic")}
+                  className={`py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                    aiImageStyle === "photorealistic" ? "bg-burgundy text-white" : "bg-bg-2 text-ink-2 hover:bg-line"}`}>
+                  <Camera size={11} /> واقعية
+                </button>
+                <button type="button" onClick={() => setAiImageStyle("illustration")}
+                  className={`py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                    aiImageStyle === "illustration" ? "bg-burgundy text-white" : "bg-bg-2 text-ink-2 hover:bg-line"}`}>
+                  <Palette size={11} /> رسومية
+                </button>
+              </div>
+              <button onClick={handleGenerateImage} disabled={generatingImage}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-burgundy/40 bg-rose-cream/30 text-burgundy text-[13px] font-semibold hover:bg-rose-cream/60 hover:border-burgundy transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+                {generatingImage ? <><Loader2 size={14} className="animate-spin" /> جاري توليد...</> : <><Sparkles size={14} /> توليد صورة بالذكاء الاصطناعي</>}
+              </button>
+            </div>
           </div>
 
           <div className="card">

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Sparkles, Camera, Palette } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
 import { SeoSection } from "@/components/admin/SeoSection";
 import { ArticlePreviewModal } from "@/components/admin/ArticlePreviewModal";
@@ -24,6 +24,7 @@ export default function NewArticlePage() {
   const [featuredImageUrl, setFeaturedImageUrl] = useState("");
   const [generatingImage, setGeneratingImage] = useState(false);
   const [isAiImage, setIsAiImage] = useState(false);
+  const [aiImageStyle, setAiImageStyle] = useState<"photorealistic"|"illustration">("photorealistic");
   const [scheduledAt, setScheduledAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
@@ -111,10 +112,6 @@ export default function NewArticlePage() {
     }
     setGeneratingImage(true);
     try {
-      // جلب النمط من الإعدادات
-      const settingsRes = await fetch("/api/settings").then((r) => r.json()).catch(() => ({}));
-      const style = settingsRes?.settings?.aiImageStyle ?? "photorealistic";
-
       const res = await fetch("/api/ai/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,7 +119,7 @@ export default function NewArticlePage() {
           title: title.trim(),
           excerpt: excerpt.trim() || undefined,
           category: categories.find((c) => c.id === categoryId)?.name || undefined,
-          style,
+          style: aiImageStyle,
         }),
       });
       if (!res.ok) {
@@ -321,18 +318,45 @@ export default function NewArticlePage() {
               </button>
             )}
 
-            {/* زر توليد الصورة بالذكاء الاصطناعي */}
-            <button
-              onClick={handleGenerateImage}
-              disabled={generatingImage}
-              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-burgundy/40 bg-rose-cream/30 text-burgundy text-[13px] font-semibold hover:bg-rose-cream/60 hover:border-burgundy transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {generatingImage ? (
-                <><Loader2 size={14} className="animate-spin" /> جاري توليد الصورة...</>
-              ) : (
-                <><Sparkles size={14} /> توليد صورة بالذكاء الاصطناعي</>
-              )}
-            </button>
+            {/* توليد الصورة بالذكاء الاصطناعي */}
+            <div className="mt-3 space-y-2">
+              {/* toggle النمط */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setAiImageStyle("photorealistic")}
+                  className={`py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                    aiImageStyle === "photorealistic"
+                      ? "bg-burgundy text-white"
+                      : "bg-bg-2 text-ink-2 hover:bg-line"
+                  }`}
+                >
+                  <Camera size={11} /> واقعية
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAiImageStyle("illustration")}
+                  className={`py-1.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                    aiImageStyle === "illustration"
+                      ? "bg-burgundy text-white"
+                      : "bg-bg-2 text-ink-2 hover:bg-line"
+                  }`}
+                >
+                  <Palette size={11} /> رسومية
+                </button>
+              </div>
+              <button
+                onClick={handleGenerateImage}
+                disabled={generatingImage}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-burgundy/40 bg-rose-cream/30 text-burgundy text-[13px] font-semibold hover:bg-rose-cream/60 hover:border-burgundy transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {generatingImage ? (
+                  <><Loader2 size={14} className="animate-spin" /> جاري توليد...</>
+                ) : (
+                  <><Sparkles size={14} /> توليد صورة بالذكاء الاصطناعي</>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Category */}
