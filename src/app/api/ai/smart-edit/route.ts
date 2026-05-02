@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 // ── Post-processing rules ─────────────────────────────────────────────────
 function trimTitle(text: string, maxWords = 20, maxChars = 120): string {
   const words = text.trim().split(/\s+/).slice(0, maxWords).join(" ");
@@ -96,6 +92,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const client = new OpenAI({ apiKey });
     const { content, mode = "smart" } = await req.json();
 
     if (!content || content.trim().length < 30) {

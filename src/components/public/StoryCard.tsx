@@ -25,10 +25,18 @@ type StoryCardProps = {
 };
 
 export function StoryCard({ article, variant = "row" }: StoryCardProps) {
-  if (variant === "lead") return <LeadStory article={article} />;
-  if (variant === "side") return <SideStory article={article} />;
-  if (variant === "tile") return <TileStory article={article} />;
-  return <RowStory article={article} />;
+  // Inline image payloads can make ISR responses exceed Vercel's size limit.
+  let safeImageUrl = article.featuredImageUrl;
+  if (safeImageUrl?.startsWith("data:image")) {
+    safeImageUrl = null;
+  }
+
+  const safeArticle = { ...article, featuredImageUrl: safeImageUrl };
+
+  if (variant === "lead") return <LeadStory article={safeArticle} />;
+  if (variant === "side") return <SideStory article={safeArticle} />;
+  if (variant === "tile") return <TileStory article={safeArticle} />;
+  return <RowStory article={safeArticle} />;
 }
 
 function PhotoPlaceholder({ category }: { category?: string | null }) {

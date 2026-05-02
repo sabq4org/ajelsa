@@ -33,6 +33,20 @@ const HOME_FILTER = and(
   eq(articles.excludeFromHome, false)
 );
 
+const publicFeaturedImageUrl = sql<string | null>`
+  CASE
+    WHEN ${articles.featuredImageUrl} LIKE 'data:%' THEN NULL
+    ELSE ${articles.featuredImageUrl}
+  END
+`;
+
+function stripInlineFeaturedImage<T extends { featuredImageUrl?: string | null }>(row: T): T {
+  if (row.featuredImageUrl?.startsWith("data:")) {
+    return { ...row, featuredImageUrl: null };
+  }
+  return row;
+}
+
 /** أحدث الأخبار (للصفحة الرئيسية — تستثني excludeFromHome) */
 export async function getLatestArticles(limit = 10): Promise<ArticleListItem[]> {
   return db
@@ -42,7 +56,7 @@ export async function getLatestArticles(limit = 10): Promise<ArticleListItem[]> 
       title: articles.title,
       subtitle: articles.subtitle,
       excerpt: articles.excerpt,
-      featuredImageUrl: articles.featuredImageUrl,
+      featuredImageUrl: publicFeaturedImageUrl,
       type: articles.type,
       isBreaking: articles.isBreaking,
       publishedAt: articles.publishedAt,
@@ -88,7 +102,7 @@ export async function getMostReadArticles(limit = 5): Promise<ArticleListItem[]>
       title: articles.title,
       subtitle: articles.subtitle,
       excerpt: articles.excerpt,
-      featuredImageUrl: articles.featuredImageUrl,
+      featuredImageUrl: publicFeaturedImageUrl,
       type: articles.type,
       isBreaking: articles.isBreaking,
       publishedAt: articles.publishedAt,
@@ -115,7 +129,7 @@ export async function getFeaturedArticles(limit = 5): Promise<ArticleListItem[]>
       title: articles.title,
       subtitle: articles.subtitle,
       excerpt: articles.excerpt,
-      featuredImageUrl: articles.featuredImageUrl,
+      featuredImageUrl: publicFeaturedImageUrl,
       type: articles.type,
       isBreaking: articles.isBreaking,
       publishedAt: articles.publishedAt,
@@ -160,7 +174,7 @@ export async function getArticleBySlug(slug: string) {
     .innerJoin(tags, eq(articleTags.tagId, tags.id))
     .where(eq(articleTags.articleId, row.article.id));
 
-  return { ...row, tags: tagRows };
+  return { ...row, article: stripInlineFeaturedImage(row.article), tags: tagRows };
 }
 
 /** أخبار قسم — raw SQL لتجنب مشكلة Drizzle enum */
@@ -175,7 +189,10 @@ export async function getCategoryArticles(
       sql`
         SELECT
           a.id, a.slug, a.title, a.excerpt,
-          a.featured_image_url  AS "featuredImageUrl",
+          CASE
+            WHEN a.featured_image_url LIKE 'data:%' THEN NULL
+            ELSE a.featured_image_url
+          END AS "featuredImageUrl",
           a.is_breaking         AS "isBreaking",
           a.published_at        AS "publishedAt",
           a.view_count          AS "viewCount",
@@ -224,7 +241,7 @@ export async function getKeywordArticles(keyword: string, limit = 24) {
       slug: articles.slug,
       title: articles.title,
       excerpt: articles.excerpt,
-      featuredImageUrl: articles.featuredImageUrl,
+      featuredImageUrl: publicFeaturedImageUrl,
       isBreaking: articles.isBreaking,
       publishedAt: articles.publishedAt,
       viewCount: articles.viewCount,
