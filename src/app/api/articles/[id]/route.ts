@@ -10,6 +10,7 @@ import { logAction } from "@/lib/audit";
 import { z } from "zod";
 import { stripHtml, readingTimeMinutes } from "@/lib/utils";
 import { cacheDeletePattern } from "@/lib/redis";
+import { revalidatePath } from "next/cache";
 import { indexArticle, removeArticleFromIndex } from "@/lib/search";
 
 const updateSchema = z.object({
@@ -85,6 +86,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     await cacheDeletePattern("articles:*");
 
+    // تحديث الصفحات العامة فوراً
+    try {
+      revalidatePath("/");
+      revalidatePath("/latest");
+      revalidatePath(`/article/${updated.slug}`);
+      if (updated.categoryId) revalidatePath("/category/[slug]", "page");
+    } catch (e) {
+      console.error("[revalidate]", e);
+    }
+
     if (updated.status === "published") {
       indexArticle({
         id: updated.id,
@@ -137,6 +148,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     const [deleted] = await db.select({ title: articles.title }).from(articles).where(eq(articles.id, id)).limit(1);
     await db.delete(articles).where(eq(articles.id, id));
     await cacheDeletePattern("articles:*");
+    try {
+      revalidatePath("/");
+      revalidatePath("/latest");
+    } catch {}
     removeArticleFromIndex(id).catch(() => {});
 
     await logAction({

@@ -49,10 +49,26 @@ async function generateIllustration({ title, excerpt, category }: Record<string,
     );
   }
 
-  const prompt = `Flat digital illustration for a news article. NO photographs, NO realism.
-Style: clean vector art, soft pastel colors, 2D characters, medical/tech infographic aesthetic.
-Topic: ${title}${excerpt ? `. ${excerpt}` : ""}${category ? `. Category: ${category}` : ""}.
-Background: light gradient. No text, no letters, no watermarks anywhere.`;
+  // لا نرسل عنوان الخبر للنموذج — فقط وصف الموضوع لتفادي كتابة العنوان داخل الصورة
+  const visualSubject = excerpt || title;
+
+  const prompt = `A flat digital editorial illustration about: ${visualSubject}${category ? ` (${category})` : ""}.
+
+STRICT VISUAL RULES:
+- Pure visual storytelling, NO TEXT OF ANY KIND
+- ABSOLUTELY NO words, NO letters, NO numbers, NO Arabic script, NO English script
+- NO captions, NO labels, NO titles, NO headlines, NO logos, NO watermarks
+- NO signs, NO banners, NO posters, NO documents with visible text
+- NO street signs, NO TV screens with text, NO papers with writing
+- All elements are purely pictorial
+
+STYLE:
+- Clean modern vector illustration, flat design
+- Soft pastel colors with subtle gradients
+- Simple shapes, professional infographic look
+- 2D minimalist characters and icons if needed
+- Suitable for Saudi Arabian news platform
+- Light, friendly, contemporary aesthetic`;
 
   let res: Response;
   try {
@@ -110,10 +126,27 @@ async function generatePhoto({ title, excerpt, category }: Record<string, string
     );
   }
 
-  const prompt = `Photorealistic professional news photograph.
-Title: ${title}${excerpt ? `\nSummary: ${excerpt}` : ""}${category ? `\nCategory: ${category}` : ""}
-Style: high-quality photojournalism, realistic lighting, documentary feel.
-Culturally appropriate for Saudi Arabia. No text, no watermarks.`;
+  // لا نرسل العنوان حرفياً — فقط وصف المشهد
+  const visualSubject = excerpt || title;
+
+  const prompt = `A photorealistic professional news photograph depicting: ${visualSubject}${category ? ` (${category})` : ""}.
+
+STRICT VISUAL RULES:
+- Pure visual photograph, NO TEXT OF ANY KIND
+- ABSOLUTELY NO words, NO letters, NO numbers visible anywhere
+- NO Arabic text, NO English text, NO scripts in any language
+- NO captions, NO labels, NO logos, NO watermarks
+- NO street signs, NO billboards, NO posters with text
+- NO newspapers, NO papers with visible writing
+- NO TV screens or phones showing text
+- All visual storytelling through imagery only
+
+STYLE:
+- High-quality photojournalism, documentary photography
+- Realistic lighting, natural composition
+- Culturally appropriate for Saudi Arabia and the Gulf region
+- Professional news quality
+- 16:9 horizontal composition`;
 
   let res: Response;
   try {

@@ -9,6 +9,7 @@ import { getSession, requireRole } from "@/lib/auth";
 import { z } from "zod";
 import { arabicSlug, readingTimeMinutes, stripHtml } from "@/lib/utils";
 import { cacheDeletePattern } from "@/lib/redis";
+import { revalidatePath } from "next/cache";
 import { indexArticle } from "@/lib/search";
 import { logAction } from "@/lib/audit";
 
@@ -131,6 +132,17 @@ export async function POST(req: NextRequest) {
 
     // Bust caches
     await cacheDeletePattern("articles:*");
+
+    // تحديث الصفحات العامة فوراً (ISR revalidation)
+    if (created.status === "published") {
+      try {
+        revalidatePath("/");
+        revalidatePath("/latest");
+        revalidatePath(`/article/${created.slug}`);
+      } catch (e) {
+        console.error("[revalidate]", e);
+      }
+    }
 
     // Index in search if published
     if (created.status === "published") {
