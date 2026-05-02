@@ -88,33 +88,14 @@ export function SiteHeader({
               </div>
             </div>
 
-            {/* الوسط: الشعار مع زخارف عنابية */}
+            {/* الوسط: الشعار */}
             <Link href="/" className="text-center group flex flex-col items-center">
-              <div className="flex items-center gap-5">
-                {/* زخرفة يمين */}
-                <div className="hidden md:flex items-center gap-1.5">
-                  <span className="w-12 h-px bg-burgundy/30" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-burgundy/40" />
-                  <span className="w-6 h-px bg-burgundy/20" />
-                </div>
-
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/logo.png"
-                  alt="صحيفة عاجل"
-                  className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-                />
-
-                {/* زخرفة يسار */}
-                <div className="hidden md:flex items-center gap-1.5">
-                  <span className="w-6 h-px bg-burgundy/20" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-burgundy/40" />
-                  <span className="w-12 h-px bg-burgundy/30" />
-                </div>
-              </div>
-              <div className="text-[11px] text-ink-soft mt-3 tracking-[5px] font-semibold">
-                صحيفة الحدث الأولى
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt="صحيفة عاجل"
+                className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+              />
             </Link>
 
             {/* اليمين: أيقونات أنيقة */}

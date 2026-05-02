@@ -28,6 +28,7 @@ import {
   BarChart2,
   Mail,
   LayoutGrid,
+  Receipt,
 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,7 @@ const MENU_GROUPS = [
     label: "إعلانات",
     items: [
       { icon: Megaphone, label: "إدارة الإعلانات", href: "/admin/ads" },
+      { icon: Receipt, label: "الفواتير", href: "/admin/invoices" },
     ],
   },
   {
