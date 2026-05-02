@@ -56,7 +56,7 @@ export function VideoSection() {
   const others = MOCK_VIDEOS.slice(1);
 
   return (
-    <section className="relative -mx-4 lg:-mx-8">
+    <section className="relative w-screen left-1/2 right-1/2 -mx-[50vw]">
       {/* خلفية أنيقة كريمية مع لمسة خفيفة */}
       <div className="relative bg-gradient-to-br from-bg via-paper to-rose-cream/30 overflow-hidden border-y border-line">
         {/* زخارف ضبابية */}
