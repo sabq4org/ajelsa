@@ -7,11 +7,11 @@ import { getCategoryArticles, getActiveCategories } from "@/lib/queries/articles
 import { Newspaper } from "lucide-react";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { slug } = params;
+  const { slug } = await params;
 
   let categoryName = "";
   let articles: any[] = [];
