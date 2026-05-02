@@ -41,6 +41,7 @@
     "meilisearch": "^0.46.0",
     "nanoid": "^5.0.9",
     "next": "^15.1.6",
+    "openai": "^6.35.0",
     "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

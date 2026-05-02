@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // ── Post-processing rules ─────────────────────────────────────────────────
@@ -88,27 +88,11 @@ const SYSTEM_TITLES = `أنت محرر عناوين خبير في صحيفة "ع
 
 أعد مصفوفة JSON من 3 عناوين فقط: ["عنوان 1", "عنوان 2", "عنوان 3"]`;
 
-// ── Category mapping to DB slugs ─────────────────────────────────────────
-const CAT_MAP: Record<string, string[]> = {
-  "politics":     ["سياسة", "politics"],
-  "economy":      ["اقتصاد", "economy"],
-  "sports":       ["رياضة", "sports"],
-  "technology":   ["تقنية", "technology"],
-  "entertainment":["ترفيه", "entertainment"],
-  "health":       ["صحة", "health"],
-  "world":        ["دولي", "عالم", "world"],
-  "local":        ["محلي", "local"],
-  "education":    ["تعليم", "education"],
-  "environment":  ["بيئة", "environment"],
-  "saudi-arabia": ["saudi-arabia"],
-  "middle-east":  ["middle-east"],
-};
-
 // ── Route handler ─────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY غير مضبوط في متغيرات البيئة" }, { status: 500 });
+    return NextResponse.json({ error: "OPENAI_API_KEY غير مضبوط في متغيرات البيئة" }, { status: 500 });
   }
 
   try {
@@ -120,21 +104,23 @@ export async function POST(req: NextRequest) {
 
     // ── SMART EDIT (default) ──────────────────────────────────────────────
     if (mode === "smart") {
-      const msg = await client.messages.create({
-        model: "claude-sonnet-4-5",
+      const response = await client.chat.completions.create({
+        model: "gpt-4o",
         max_tokens: 2048,
         temperature: 0.8,
-        system: SYSTEM_SMART,
-        messages: [{ role: "user", content: `📦 النص:\n\n${content}\n\nولّد جميع العناصر بصيغة JSON.` }],
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: SYSTEM_SMART },
+          { role: "user", content: `📦 النص:\n\n${content}\n\nولّد جميع العناصر بصيغة JSON.` },
+        ],
       });
 
-      const raw = msg.content[0].type === "text" ? msg.content[0].text : "";
+      const raw = response.choices[0].message.content ?? "";
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("لم يُرجع النموذج JSON صحيح");
 
       const data = JSON.parse(jsonMatch[0]);
 
-      // Post-processing
       return NextResponse.json({
         main_title: trimTitle(data.main_title ?? ""),
         sub_title: trimSubtitle(data.sub_title ?? ""),
@@ -150,14 +136,17 @@ export async function POST(req: NextRequest) {
 
     // ── REWRITE ───────────────────────────────────────────────────────────
     if (mode === "rewrite") {
-      const msg = await client.messages.create({
-        model: "claude-sonnet-4-5",
+      const response = await client.chat.completions.create({
+        model: "gpt-4o",
         max_tokens: 4096,
-        system: SYSTEM_REWRITE,
-        messages: [{ role: "user", content: `📦 المحتوى:\n\n${content}\n\nأعد التحرير بصيغة JSON.` }],
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: SYSTEM_REWRITE },
+          { role: "user", content: `📦 المحتوى:\n\n${content}\n\nأعد التحرير بصيغة JSON.` },
+        ],
       });
 
-      const raw = msg.content[0].type === "text" ? msg.content[0].text : "";
+      const raw = response.choices[0].message.content ?? "";
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("لم يُرجع النموذج JSON صحيح");
 
@@ -170,17 +159,19 @@ export async function POST(req: NextRequest) {
 
     // ── TITLES ────────────────────────────────────────────────────────────
     if (mode === "titles") {
-      const msg = await client.messages.create({
-        model: "claude-sonnet-4-5",
+      const response = await client.chat.completions.create({
+        model: "gpt-4o",
         max_tokens: 512,
-        system: SYSTEM_TITLES,
-        messages: [{
-          role: "user",
-          content: `اقترح 3 عناوين مختلفة. مصفوفة JSON فقط.\n\nالخبر:\n${content}`,
-        }],
+        messages: [
+          { role: "system", content: SYSTEM_TITLES },
+          {
+            role: "user",
+            content: `اقترح 3 عناوين مختلفة. مصفوفة JSON فقط.\n\nالخبر:\n${content}`,
+          },
+        ],
       });
 
-      const raw = msg.content[0].type === "text" ? msg.content[0].text : "";
+      const raw = response.choices[0].message.content ?? "";
       const jsonMatch = raw.match(/\[[\s\S]*\]/);
       if (!jsonMatch) throw new Error("لم يُرجع النموذج JSON صحيح");
 
