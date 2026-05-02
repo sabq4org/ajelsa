@@ -42,9 +42,10 @@ export default function CalendarPage() {
   const selectedArticles = selectedDay ? getArticlesForDay(selectedDay) : [];
   const isToday = (day: number) => today.getFullYear()===year && today.getMonth()===month && today.getDate()===day;
 
-  const cells = Array.from({ length: firstDay }, (_, i) => null).concat(
-    Array.from({ length: daysInMonth }, (_, i) => i+1)
-  );
+  const cells: (number | null)[] = [
+    ...Array.from({ length: firstDay }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
