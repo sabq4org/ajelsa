@@ -10,14 +10,24 @@ export default {
         serif: ['"Amiri"', "Georgia", "serif"],
       },
       colors: {
-        // Burgundy palette — صحيفة عاجل
+        // All theme colors via CSS variables — supports dark mode
         bg: {
-          DEFAULT: "#fbf7f4",
-          2: "#f5efe9",
+          DEFAULT: "var(--bg)",
+          2: "var(--bg-2)",
         },
         paper: {
-          DEFAULT: "#ffffff",
-          2: "#faf5f1",
+          DEFAULT: "var(--paper)",
+          2: "var(--paper)",
+        },
+        ink: {
+          DEFAULT: "var(--ink)",
+          2: "var(--ink-2)",
+          soft: "var(--ink-soft)",
+          faint: "var(--ink-faint)",
+        },
+        line: {
+          DEFAULT: "var(--line)",
+          soft: "var(--line-soft)",
         },
         burgundy: {
           DEFAULT: "#8c1d2b",
@@ -28,16 +38,6 @@ export default {
           DEFAULT: "#d8a5aa",
           soft: "#f0d4d6",
           cream: "#fce8e9",
-        },
-        ink: {
-          DEFAULT: "#1f1a1c",
-          2: "#4a3f43",
-          soft: "#7a6d72",
-          faint: "#b3a8ac",
-        },
-        line: {
-          DEFAULT: "#ede4dd",
-          soft: "#f3ebe3",
         },
         gold: "#b8924a",
         sage: "#7a9081",

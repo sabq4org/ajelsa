@@ -27,6 +27,7 @@ import {
   GitBranch,
   BarChart2,
   Mail,
+  LayoutGrid,
 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,7 @@ const MENU_GROUPS = [
       { icon: Zap, label: "غرفة العاجل", href: "/admin/breaking" },
       { icon: GitBranch, label: "سير العمل", href: "/admin/workflow" },
       { icon: CalendarDays, label: "تقويم النشر", href: "/admin/calendar" },
+      { icon: LayoutGrid, label: "ترتيب الصفحة الرئيسية", href: "/admin/homepage" },
     ],
   },
   {
