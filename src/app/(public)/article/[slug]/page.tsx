@@ -134,7 +134,7 @@ export default async function ArticlePage({
 
       {/* Tags */}
       {tags.length > 0 && (
-        <div className="flex items-center gap-3 mt-10 pt-6 border-t border-line">
+        <div className="flex items-center gap-3 mt-10 pt-6 border-t border-line flex-wrap">
           <TagIcon size={14} className="text-ink-faint" />
           {tags.map((tag) => (
             <a
@@ -145,6 +145,25 @@ export default async function ArticlePage({
               {tag.name}
             </a>
           ))}
+        </div>
+      )}
+
+      {/* الكلمات المفتاحية */}
+      {article.metaKeywords && (
+        <div className="mt-6 pt-5 border-t border-line">
+          <p className="text-[11px] font-semibold text-ink-soft tracking-widest mb-3 uppercase">كلمات مفتاحية</p>
+          <div className="flex flex-wrap gap-2">
+            {(article.metaKeywords as string).split(/[،,]+/).map((kw, i) => (
+              kw.trim() ? (
+                <span
+                  key={i}
+                  className="text-xs px-3 py-1 rounded-full border border-line text-ink-2 bg-bg-2"
+                >
+                  {kw.trim()}
+                </span>
+              ) : null
+            ))}
+          </div>
         </div>
       )}
 

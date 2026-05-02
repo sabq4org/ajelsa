@@ -111,36 +111,40 @@ const FALLBACK_DATA = {
 export default async function HomePage() {
   let lead: any = null;
   let sideStories: any[] = [];
-  let latest: any[] | null = null;
+  let latest: any[] = [];
   let mostRead: any[] | null = null;
+  let hasRealData = false;
 
   try {
     const [featured, latestArticles, mostReadArticles] = await Promise.all([
       getFeaturedArticles(5),
-      getLatestArticles(12),
+      getLatestArticles(20),
       getMostReadArticles(5),
     ]);
+
+    hasRealData = featured.length > 0 || latestArticles.length > 0;
 
     if (featured.length > 0) {
       lead = featured[0];
       sideStories = featured.slice(1, 5);
     } else if (latestArticles.length > 0) {
-      // لو ما فيه مميزة، استخدم أحدث الأخبار
       lead = latestArticles[0];
       sideStories = latestArticles.slice(1, 5);
     }
 
-    latest = latestArticles.length > 0 ? latestArticles.slice(lead ? 5 : 0) : null;
+    // كل الأخبار المتبقية بعد الليد والسايد
+    const heroCount = lead ? 1 + sideStories.length : 0;
+    latest = latestArticles.slice(heroCount);
     mostRead = mostReadArticles.length > 0 ? mostReadArticles : null;
   } catch {
     // DB not connected — show demo
   }
 
-  // Use fallback if no real data
+  // استخدم البيانات التجريبية فقط لو ما في بيانات حقيقية إطلاقاً
   const showLead = lead ?? FALLBACK_DATA.lead;
-  const showSide = sideStories.length > 0 ? sideStories : FALLBACK_DATA.side;
-  const showLatest = latest ?? FALLBACK_DATA.latest;
-  const showMostRead = mostRead?.map((a) => a.title) ?? FALLBACK_DATA.mostRead;
+  const showSide = sideStories.length > 0 ? sideStories : (hasRealData ? [] : FALLBACK_DATA.side);
+  const showLatest = hasRealData ? latest : FALLBACK_DATA.latest;
+  const showMostRead = mostRead?.map((a) => a.title) ?? (hasRealData ? [] : FALLBACK_DATA.mostRead);
 
   return (
     <div className="max-w-[1320px] mx-auto px-8 py-9">
