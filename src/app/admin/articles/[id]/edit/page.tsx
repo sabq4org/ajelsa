@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Trash2, History } from "lucide-react";
+import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Trash2, History, Sparkles } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
 import { ConfirmDialog } from "@/components/admin/Modal";
 import { SeoSection } from "@/components/admin/SeoSection";
@@ -47,6 +47,9 @@ export default function EditArticlePage() {
 
   // Version history panel
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  // AI image generation
+  const [generatingImage, setGeneratingImage] = useState(false);
 
   const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "";
 
@@ -138,6 +141,37 @@ export default function EditArticlePage() {
       router.push("/admin/articles");
     } catch (e: any) {
       toast.error(e.message);
+    }
+  }
+
+  async function handleGenerateImage() {
+    if (!title.trim()) {
+      toast.error("أضف العنوان أولاً لتوليد الصورة");
+      return;
+    }
+    setGeneratingImage(true);
+    try {
+      const res = await fetch("/api/ai/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          excerpt: excerpt.trim() || undefined,
+          category: categories.find((c) => c.id === categoryId)?.name || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "فشل توليد الصورة");
+        return;
+      }
+      const { url } = await res.json();
+      setFeaturedImageUrl(url);
+      toast.success("تم توليد الصورة بنجاح ✨");
+    } catch (e: any) {
+      toast.error("خطأ: " + e.message);
+    } finally {
+      setGeneratingImage(false);
     }
   }
 
@@ -237,15 +271,6 @@ export default function EditArticlePage() {
             <textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="مقدمة..." rows={2} className="w-full text-sm text-ink outline-none bg-transparent resize-none leading-relaxed" dir="rtl" />
           </div>
 
-          <ArticleEditor
-            placeholder="ابدأ كتابة محتوى الخبر..."
-            initialContent={initialContent}
-            onChange={({ html, json }) => {
-              setContentHtml(html);
-              setContentJson(json);
-            }}
-          />
-
           {/* ✨ Smart Edit Bar */}
           <SmartEditBar
             contentHtml={contentHtml}
@@ -257,6 +282,15 @@ export default function EditArticlePage() {
               if (data.metaDescription !== undefined) setMetaDescription(data.metaDescription);
               if (data.metaKeywords !== undefined) setMetaKeywords(data.metaKeywords);
               if (data.contentHtml !== undefined) setContentHtml(data.contentHtml);
+            }}
+          />
+
+          <ArticleEditor
+            placeholder="ابدأ كتابة محتوى الخبر..."
+            initialContent={initialContent}
+            onChange={({ html, json }) => {
+              setContentHtml(html);
+              setContentJson(json);
             }}
           />
 
@@ -291,6 +325,19 @@ export default function EditArticlePage() {
                 </div>
               </button>
             )}
+
+            {/* زر توليد الصورة بالذكاء الاصطناعي */}
+            <button
+              onClick={handleGenerateImage}
+              disabled={generatingImage}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-burgundy/40 bg-rose-cream/30 text-burgundy text-[13px] font-semibold hover:bg-rose-cream/60 hover:border-burgundy transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {generatingImage ? (
+                <><Loader2 size={14} className="animate-spin" /> جاري توليد الصورة...</>
+              ) : (
+                <><Sparkles size={14} /> توليد صورة بالذكاء الاصطناعي</>
+              )}
+            </button>
           </div>
 
           <div className="card">
