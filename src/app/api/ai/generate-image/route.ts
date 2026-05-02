@@ -8,19 +8,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
-  const apiKey =
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.AI_INTEGRATIONS_GEMINI_API_KEY ||
-    process.env.GOOGLE_GEMINI_API_KEY;
+  const apiKey = [
+    process.env.GEMINI_API_KEY,
+    process.env.GOOGLE_API_KEY,
+    process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
+    process.env.GOOGLE_GEMINI_API_KEY,
+  ].map((k) => k?.trim()).find((k) => k && k.length > 10);
 
   if (!apiKey) {
-    const available = Object.keys(process.env)
-      .filter((k) => k.toLowerCase().includes("gemini") || k.toLowerCase().includes("google"))
-      .join(", ") || "لا يوجد";
-    console.error("[generate-image] missing API key. Found keys:", available);
+    const debug = [
+      `GEMINI_API_KEY=${JSON.stringify(process.env.GEMINI_API_KEY?.slice(0, 8))}`,
+    ].join(" ");
+    console.error("[generate-image] API key empty or too short:", debug);
     return NextResponse.json(
-      { error: `GEMINI_API_KEY غير مضبوط (متاح: ${available})` },
+      { error: `مفتاح Gemini فارغ أو غير صحيح — تحقق من قيمة GEMINI_API_KEY في Vercel` },
       { status: 500 }
     );
   }
