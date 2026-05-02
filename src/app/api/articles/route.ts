@@ -26,6 +26,9 @@ const createSchema = z.object({
   featuredImageUrl: z.string().url().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+  ogImageUrl: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   scheduledAt: z.string().datetime().optional(),
 });
 
@@ -109,6 +112,9 @@ export async function POST(req: NextRequest) {
         featuredImageUrl: data.featuredImageUrl,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
+        metaKeywords: data.metaKeywords,
+        ogImageUrl: data.ogImageUrl,
+        canonicalUrl: data.canonicalUrl,
         readingTimeMinutes: reading,
         publishedAt: data.status === "published" ? new Date() : null,
         scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
 import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2 } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
+import { SeoSection } from "@/components/admin/SeoSection";
+import { ArticlePreviewModal } from "@/components/admin/ArticlePreviewModal";
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -23,6 +25,17 @@ export default function NewArticlePage() {
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
   const [loadingCats, setLoadingCats] = useState(true);
+
+  // SEO fields
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [metaKeywords, setMetaKeywords] = useState("");
+  const [ogImageUrl, setOgImageUrl] = useState("");
+
+  // Preview modal
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "";
 
   useEffect(() => {
     fetch("/api/categories")
@@ -62,6 +75,10 @@ export default function NewArticlePage() {
           isFeatured,
           featuredImageUrl: featuredImageUrl || undefined,
           scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
+          metaTitle: metaTitle.trim() || undefined,
+          metaDescription: metaDescription.trim() || undefined,
+          metaKeywords: metaKeywords.trim() || undefined,
+          ogImageUrl: ogImageUrl.trim() || undefined,
         }),
       });
 
@@ -120,6 +137,12 @@ export default function NewArticlePage() {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => setPreviewOpen(true)}
+            className="bg-paper border border-line px-4.5 py-2.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 hover:bg-bg-2 transition-colors"
+          >
+            <Eye size={14} /> معاينة
+          </button>
+          <button
             onClick={() => handleSave("draft")}
             disabled={saving}
             className="bg-paper border border-line px-4.5 py-2.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 hover:bg-bg-2 transition-colors disabled:opacity-50"
@@ -131,7 +154,7 @@ export default function NewArticlePage() {
             disabled={saving}
             className="bg-paper border border-line px-4.5 py-2.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 hover:bg-bg-2 transition-colors disabled:opacity-50"
           >
-            <Eye size={14} /> إرسال للمراجعة
+            إرسال للمراجعة
           </button>
           <button
             onClick={() => handleSave("published")}
@@ -189,6 +212,19 @@ export default function NewArticlePage() {
               setContentHtml(html);
               setContentJson(json);
             }}
+          />
+
+          {/* SEO Section */}
+          <SeoSection
+            articleTitle={title}
+            metaTitle={metaTitle}
+            setMetaTitle={setMetaTitle}
+            metaDescription={metaDescription}
+            setMetaDescription={setMetaDescription}
+            metaKeywords={metaKeywords}
+            setMetaKeywords={setMetaKeywords}
+            ogImageUrl={ogImageUrl}
+            setOgImageUrl={setOgImageUrl}
           />
         </div>
 
@@ -319,6 +355,18 @@ export default function NewArticlePage() {
           </div>
         </div>
       </div>
+
+      {/* Article Preview Modal */}
+      <ArticlePreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={title}
+        subtitle={subtitle}
+        contentHtml={contentHtml}
+        featuredImageUrl={featuredImageUrl}
+        isBreaking={isBreaking}
+        categoryName={categoryName}
+      />
     </>
   );
 }

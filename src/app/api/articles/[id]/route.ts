@@ -27,6 +27,9 @@ const updateSchema = z.object({
   featuredImageUrl: z.string().url().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+  ogImageUrl: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   scheduledAt: z.string().datetime().optional(),
 });
 

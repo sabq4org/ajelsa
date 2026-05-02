@@ -410,6 +410,35 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
 }));
 
 // =====================================================
+// AUDIT LOGS — سجل النشاطات
+// =====================================================
+
+export const auditActionEnum = pgEnum("audit_action", [
+  "article_created", "article_updated", "article_published", "article_deleted",
+  "article_archived", "user_created", "user_updated", "comment_approved",
+  "comment_deleted", "category_created", "category_updated", "login", "logout"
+]);
+
+export const auditLogs = pgTable("audit_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  userFullName: varchar("user_full_name", { length: 200 }),
+  action: auditActionEnum("action").notNull(),
+  entityType: varchar("entity_type", { length: 50 }),
+  entityId: uuid("entity_id"),
+  entityTitle: varchar("entity_title", { length: 300 }),
+  details: jsonb("details"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [
+  index("audit_user_idx").on(t.userId),
+  index("audit_action_idx").on(t.action),
+  index("audit_created_idx").on(t.createdAt),
+]);
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+
+// =====================================================
 // TYPE EXPORTS
 // =====================================================
 

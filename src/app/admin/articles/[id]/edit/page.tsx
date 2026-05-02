@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Trash2 } from "lucide-react";
+import { ArrowRight, Save, Eye, Calendar, Image as ImageIcon, Zap, Loader2, Trash2, History } from "lucide-react";
 import { toast } from "@/components/admin/Toast";
 import { ConfirmDialog } from "@/components/admin/Modal";
+import { SeoSection } from "@/components/admin/SeoSection";
+import { ArticlePreviewModal } from "@/components/admin/ArticlePreviewModal";
+import { VersionHistoryPanel } from "@/components/admin/VersionHistoryPanel";
 
 export default function EditArticlePage() {
   const router = useRouter();
@@ -32,6 +35,20 @@ export default function EditArticlePage() {
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
   const [initialContent, setInitialContent] = useState<any>(null);
 
+  // SEO fields
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [metaKeywords, setMetaKeywords] = useState("");
+  const [ogImageUrl, setOgImageUrl] = useState("");
+
+  // Preview modal
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Version history panel
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "";
+
   useEffect(() => {
     void Promise.all([
       fetch("/api/categories").then((r) => r.json()).then((d) => setCategories(d.items ?? [])),
@@ -54,6 +71,10 @@ export default function EditArticlePage() {
         setIsBreaking(!!a.isBreaking);
         setIsFeatured(!!a.isFeatured);
         setFeaturedImageUrl(a.featuredImageUrl || "");
+        setMetaTitle(a.metaTitle || "");
+        setMetaDescription(a.metaDescription || "");
+        setMetaKeywords(a.metaKeywords || "");
+        setOgImageUrl(a.ogImageUrl || "");
         if (a.scheduledAt) {
           const d2 = new Date(a.scheduledAt);
           setScheduledAt(d2.toISOString().slice(0, 16));
@@ -87,6 +108,10 @@ export default function EditArticlePage() {
           isFeatured,
           featuredImageUrl: featuredImageUrl || undefined,
           scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
+          metaTitle: metaTitle.trim() || undefined,
+          metaDescription: metaDescription.trim() || undefined,
+          metaKeywords: metaKeywords.trim() || undefined,
+          ogImageUrl: ogImageUrl.trim() || undefined,
         }),
       });
       if (!res.ok) {
@@ -137,6 +162,15 @@ export default function EditArticlePage() {
     input.click();
   }
 
+  function handleRestore(restoredTitle: string, restoredContentJson: any) {
+    setTitle(restoredTitle);
+    if (restoredContentJson) {
+      setContentJson(restoredContentJson);
+      setInitialContent(restoredContentJson);
+    }
+    toast.success("تم استعادة النسخة — لا تنسَ الحفظ");
+  }
+
   if (loading) {
     return (
       <div className="py-20 grid place-items-center text-ink-soft">
@@ -160,6 +194,18 @@ export default function EditArticlePage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setHistoryOpen(true)}
+            className="bg-paper border border-line px-4 py-2.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 hover:bg-bg-2 transition-colors"
+          >
+            <History size={14} /> السجل
+          </button>
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className="bg-paper border border-line px-4 py-2.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 hover:bg-bg-2 transition-colors"
+          >
+            <Eye size={14} /> معاينة
+          </button>
           <button onClick={() => setConfirmDelete(true)} className="bg-paper border border-rose-200 text-rose-700 px-4 py-2.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 hover:bg-rose-50 transition-colors">
             <Trash2 size={14} /> حذف
           </button>
@@ -197,6 +243,19 @@ export default function EditArticlePage() {
               setContentHtml(html);
               setContentJson(json);
             }}
+          />
+
+          {/* SEO Section */}
+          <SeoSection
+            articleTitle={title}
+            metaTitle={metaTitle}
+            setMetaTitle={setMetaTitle}
+            metaDescription={metaDescription}
+            setMetaDescription={setMetaDescription}
+            metaKeywords={metaKeywords}
+            setMetaKeywords={setMetaKeywords}
+            ogImageUrl={ogImageUrl}
+            setOgImageUrl={setOgImageUrl}
           />
         </div>
 
@@ -275,6 +334,26 @@ export default function EditArticlePage() {
         message={`هل أنت متأكد من حذف "${title}"؟ لا يمكن التراجع عن هذه العملية.`}
         confirmText="حذف نهائي"
         danger
+      />
+
+      {/* Article Preview Modal */}
+      <ArticlePreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={title}
+        subtitle={subtitle}
+        contentHtml={contentHtml}
+        featuredImageUrl={featuredImageUrl}
+        isBreaking={isBreaking}
+        categoryName={categoryName}
+      />
+
+      {/* Version History Panel */}
+      <VersionHistoryPanel
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        articleId={id}
+        onRestore={handleRestore}
       />
     </>
   );
