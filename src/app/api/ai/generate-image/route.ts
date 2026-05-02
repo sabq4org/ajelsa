@@ -46,29 +46,29 @@ ${category ? `Category: ${category}` : ""}
 Style: professional photojournalism, realistic, 16:9 composition.
 Culturally appropriate for Saudi Arabia. No text, no watermarks, no logos.`;
 
-  // ── 4. استدعاء Gemini ─────────────────────────────────────────────────
+  // ── 4. استدعاء Imagen 3 ───────────────────────────────────────────────
   let geminiRes: Response;
   try {
     geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["IMAGE"] },
+          instances: [{ prompt }],
+          parameters: { sampleCount: 1, aspectRatio: "16:9" },
         }),
       }
     );
   } catch (e: any) {
-    return NextResponse.json({ error: `فشل الاتصال بـ Gemini: ${e.message}` }, { status: 502 });
+    return NextResponse.json({ error: `فشل الاتصال بـ Imagen: ${e.message}` }, { status: 502 });
   }
 
   if (!geminiRes.ok) {
     const errText = await geminiRes.text().catch(() => "");
-    console.error("[generate-image] Gemini HTTP error:", geminiRes.status, errText);
+    console.error("[generate-image] Imagen HTTP error:", geminiRes.status, errText);
     return NextResponse.json(
-      { error: `Gemini رفض الطلب (${geminiRes.status}) — ${errText.slice(0, 200)}` },
+      { error: `Imagen رفض الطلب (${geminiRes.status}) — ${errText.slice(0, 300)}` },
       { status: 502 }
     );
   }
@@ -78,23 +78,21 @@ Culturally appropriate for Saudi Arabia. No text, no watermarks, no logos.`;
   try {
     data = await geminiRes.json();
   } catch (e: any) {
-    return NextResponse.json({ error: `فشل قراءة رد Gemini: ${e.message}` }, { status: 502 });
+    return NextResponse.json({ error: `فشل قراءة رد Imagen: ${e.message}` }, { status: 502 });
   }
 
-  const parts: any[] = data?.candidates?.[0]?.content?.parts ?? [];
-  const imagePart = parts.find((p: any) => p.inlineData?.data);
-
-  if (!imagePart) {
-    const reason = data?.candidates?.[0]?.finishReason ?? "UNKNOWN";
-    console.error("[generate-image] no image in response. finishReason:", reason, JSON.stringify(data).slice(0, 400));
+  // Imagen 3 response: { predictions: [{ bytesBase64Encoded, mimeType }] }
+  const prediction = data?.predictions?.[0];
+  if (!prediction?.bytesBase64Encoded) {
+    console.error("[generate-image] no image in Imagen response:", JSON.stringify(data).slice(0, 400));
     return NextResponse.json(
-      { error: `لم يتمكن النموذج من توليد الصورة (${reason}) — جرب عنواناً مختلفاً` },
+      { error: "لم يتمكن النموذج من توليد الصورة — جرب عنواناً مختلفاً" },
       { status: 422 }
     );
   }
 
-  const base64: string = imagePart.inlineData.data;
-  const mime: string = imagePart.inlineData.mimeType ?? "image/png";
+  const base64: string = prediction.bytesBase64Encoded;
+  const mime: string = prediction.mimeType ?? "image/png";
   const ext = mime.split("/")[1]?.split(";")[0] ?? "png";
   const buffer = Buffer.from(base64, "base64");
 
