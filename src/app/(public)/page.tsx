@@ -1,124 +1,45 @@
-// تحديث الصفحة كل 30 ثانية (ISR) — أسرع بـ 10 مرات من force-dynamic
+// تحديث الصفحة كل 30 ثانية (ISR)
 export const revalidate = 30;
 
-import { StoryCard } from "@/components/public/StoryCard";
 import {
   getLatestArticles,
   getMostReadArticles,
   getFeaturedArticles,
 } from "@/lib/queries/articles";
-import { Newspaper, Flame, Mail } from "lucide-react";
-import Link from "next/link";
+import { Newspaper, Layers } from "lucide-react";
 
-// Fallback demo data when DB is empty
-const FALLBACK_DATA = {
-  lead: {
-    slug: "saudi-private-sector-2026",
-    title: "قرارات سعودية غير مسبوقة لدعم القطاع الخاص في 2026",
-    excerpt:
-      "حزمة تحفيزية شاملة تُطلقها وزارة المالية بالشراكة مع 12 جهة حكومية، تستهدف رفع مساهمة القطاع الخاص في الناتج المحلي إلى 65% خلال السنوات الخمس القادمة، ضمن مستهدفات رؤية 2030.",
-    isBreaking: true,
-    publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    viewCount: 128400,
-    commentCount: 234,
-    category: { name: "محليات", slug: "local" },
-    author: { fullName: "أحمد العمري" },
-  },
-  side: [
-    {
-      slug: "green-falcons-asian-cup",
-      title: "الأخضر يحجز مقعده في النصف نهائي بثلاثية تاريخية",
-      publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      category: { name: "رياضة", slug: "sports" },
-      viewCount: 89000,
-    },
-    {
-      slug: "tasi-banking-rally",
-      title: "تاسي يقفز 1.8% بدعم من القطاع المصرفي",
-      publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
-      category: { name: "اقتصاد", slug: "business" },
-      viewCount: 67000,
-    },
-    {
-      slug: "gcc-summit-riyadh",
-      title: "قمة استثنائية تجمع قادة الخليج في الرياض",
-      publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      category: { name: "عالم", slug: "world" },
-      viewCount: 54000,
-    },
-    {
-      slug: "saudi-ai-platform",
-      title: "المملكة تُطلق منصة وطنية للذكاء الاصطناعي",
-      publishedAt: new Date(Date.now() - 7 * 60 * 60 * 1000),
-      category: { name: "تقنية", slug: "tech" },
-      viewCount: 41000,
-    },
-  ],
-  latest: [
-    {
-      slug: "cabinet-flexible-work",
-      title: "مجلس الوزراء يعتمد لائحة جديدة لتنظيم العمل المرن في القطاع الخاص",
-      excerpt:
-        "اعتمد مجلس الوزراء اللائحة التنفيذية الجديدة التي تستهدف تنظيم بيئة العمل المرن وتعزيز فرص التشغيل للكوادر الوطنية في القطاع الخاص.",
-      publishedAt: new Date(Date.now() - 30 * 60 * 1000),
-      viewCount: 18400,
-      commentCount: 47,
-      category: { name: "محليات", slug: "local" },
-      author: { fullName: "أحمد العمري" },
-    },
-    {
-      slug: "inflation-decline-april",
-      title: "انخفاض جديد في معدلات التضخم خلال أبريل بنسبة 0.3%",
-      excerpt:
-        "أعلنت الهيئة العامة للإحصاء عن انخفاض في معدل التضخم السنوي خلال شهر أبريل، مدعوماً بتراجع أسعار المواد الغذائية والمواصلات.",
-      publishedAt: new Date(Date.now() - 60 * 60 * 1000),
-      viewCount: 24600,
-      commentCount: 89,
-      category: { name: "اقتصاد", slug: "business" },
-      author: { fullName: "ريم الشهري" },
-    },
-    {
-      slug: "climate-summit-riyadh",
-      title: "قمة المناخ العالمية تنطلق في الرياض الأسبوع القادم بمشاركة 80 دولة",
-      excerpt:
-        "تستضيف العاصمة الرياض قمة المناخ العالمية بمشاركة قادة وممثلين من 80 دولة لمناقشة استراتيجيات الحياد الكربوني.",
-      publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      viewCount: 31200,
-      commentCount: 56,
-      category: { name: "عالم", slug: "world" },
-      author: { fullName: "خالد القحطاني" },
-    },
-    {
-      slug: "mawzn-arabic-ai",
-      title: "موزن تُطلق أول مساعد ذكاء اصطناعي عربي بقدرات متقدمة",
-      excerpt:
-        "كشفت شركة موزن السعودية عن إطلاق مساعدها الذكي الجديد المدعوم بنماذج لغوية مطورة محلياً، بقدرات تنافس أحدث النماذج العالمية.",
-      publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
-      viewCount: 22100,
-      commentCount: 38,
-      category: { name: "تقنية", slug: "tech" },
-      author: { fullName: "نوف العتيبي" },
-    },
-  ],
-  mostRead: [
-    "قرارات سعودية غير مسبوقة لدعم القطاع الخاص في 2026",
-    "الأخضر يحجز مقعده في النصف نهائي بثلاثية تاريخية",
-    "تاسي يقفز 1.8% بدعم من القطاع المصرفي",
-    "قمة استثنائية تجمع قادة الخليج في الرياض",
-    "المملكة تُطلق منصة وطنية للذكاء الاصطناعي",
-  ],
+import { LivePulseBar } from "@/components/public/LivePulseBar";
+import { HeroSection } from "@/components/public/HeroSection";
+import { AIBriefWidget } from "@/components/public/AIBriefWidget";
+import { BentoNewsGrid } from "@/components/public/BentoNewsGrid";
+import { EditorsPicks } from "@/components/public/EditorsPicks";
+import { MostReadStrip } from "@/components/public/MostReadStrip";
+import { NewsletterHero } from "@/components/public/NewsletterHero";
+import { SectionHeader } from "@/components/public/SectionHeader";
+
+// Fallback demo data (تستخدم فقط لو DB فاضية تماماً)
+const FALLBACK_LEAD: any = {
+  slug: "saudi-private-sector-2026",
+  title: "قرارات سعودية غير مسبوقة لدعم القطاع الخاص في 2026",
+  excerpt: "حزمة تحفيزية شاملة تطلقها وزارة المالية بالشراكة مع 12 جهة حكومية، تستهدف رفع مساهمة القطاع الخاص في الناتج المحلي إلى 65%.",
+  isBreaking: true,
+  publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+  viewCount: 128400,
+  category: { name: "محليات", slug: "local" },
+  author: { fullName: "أحمد العمري" },
 };
 
 export default async function HomePage() {
   let lead: any = null;
   let sideStories: any[] = [];
   let latest: any[] = [];
-  let mostRead: any[] | null = null;
+  let mostRead: any[] = [];
+  let editorsPicks: any[] = [];
   let hasRealData = false;
 
   try {
     const [featured, latestArticles, mostReadArticles] = await Promise.all([
-      getFeaturedArticles(5),
+      getFeaturedArticles(8),
       getLatestArticles(20),
       getMostReadArticles(5),
     ]);
@@ -128,123 +49,106 @@ export default async function HomePage() {
     if (featured.length > 0) {
       lead = featured[0];
       sideStories = featured.slice(1, 5);
+      // اختيارات المحرر = الأخبار المميزة بعد الـ Hero
+      editorsPicks = featured.slice(5, 8);
     } else if (latestArticles.length > 0) {
       lead = latestArticles[0];
       sideStories = latestArticles.slice(1, 5);
     }
 
-    // آخر الأخبار مستقلة عن الهيرو — تعرض كل الأخبار بالترتيب
     latest = latestArticles;
-    mostRead = mostReadArticles.length > 0 ? mostReadArticles : null;
+    mostRead = mostReadArticles.length > 0 ? mostReadArticles : latestArticles.slice(0, 5);
   } catch {
-    // DB not connected — show demo
+    // DB غير متصلة
   }
 
-  // استخدم البيانات التجريبية فقط لو ما في بيانات حقيقية إطلاقاً
-  const showLead = lead ?? FALLBACK_DATA.lead;
-  const showSide = sideStories.length > 0 ? sideStories : (hasRealData ? [] : FALLBACK_DATA.side);
-  const showLatest = hasRealData ? latest : FALLBACK_DATA.latest;
-  const showMostRead = mostRead?.map((a) => a.title) ?? (hasRealData ? [] : FALLBACK_DATA.mostRead);
+  const showLead = lead ?? FALLBACK_LEAD;
+  const showSide = sideStories.length > 0 ? sideStories : (hasRealData ? [] : []);
+  const briefArticles = hasRealData ? latest.slice(0, 5) : [];
 
   return (
-    <div className="max-w-[1320px] mx-auto px-8 py-9">
-      {/* HERO */}
-      <section className="grid lg:grid-cols-[1.6fr_1fr] gap-8 mb-10">
-        <StoryCard article={showLead} variant="lead" />
-        <div className="space-y-5">
-          {showSide.map((s, i) => (
-            <StoryCard key={i} article={s as any} variant="side" />
-          ))}
-        </div>
-      </section>
+    <>
+      {/* ━━━━━━━━━━━━ Live Pulse Bar ━━━━━━━━━━━━ */}
+      <LivePulseBar />
 
-      {/* LATEST + SIDEBAR */}
-      <section className="grid lg:grid-cols-[2fr_1fr] gap-10 py-8">
-        <div>
-          <SectionHead icon={<Newspaper size={18} />} title="آخر الأخبار" href="/latest" />
-          <div>
-            {showLatest.map((a, i) => (
-              <StoryCard key={i} article={a as any} variant="row" />
-            ))}
-          </div>
-        </div>
+      <div className="max-w-[1320px] mx-auto px-4 lg:px-8 py-8 space-y-12">
 
-        <aside className="space-y-6">
-          {/* Most read */}
-          <div className="bg-paper border border-line rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-br from-burgundy to-burgundy-dark text-white px-5 py-3.5 flex items-center gap-2 font-bold text-sm">
-              <Flame size={16} />
-              الأكثر قراءة
-            </div>
-            <div className="py-1">
-              {showMostRead.map((title, i) => (
-                <Link
+        {/* ━━━━━━━━━━━━ Hero Section ━━━━━━━━━━━━ */}
+        <HeroSection lead={showLead} side={showSide} />
+
+        {/* ━━━━━━━━━━━━ AI Daily Brief ━━━━━━━━━━━━ */}
+        {briefArticles.length > 0 && (
+          <AIBriefWidget articles={briefArticles} />
+        )}
+
+        {/* ━━━━━━━━━━━━ Bento News Grid ━━━━━━━━━━━━ */}
+        {latest.length >= 3 && (
+          <section>
+            <SectionHeader
+              icon={<Layers size={18} />}
+              title="أبرز الأخبار"
+              subtitle="مختارات من تحرير عاجل"
+            />
+            <BentoNewsGrid articles={latest.slice(sideStories.length + 1, sideStories.length + 7)} />
+          </section>
+        )}
+
+        {/* ━━━━━━━━━━━━ Editor's Picks ━━━━━━━━━━━━ */}
+        {editorsPicks.length > 0 && (
+          <EditorsPicks articles={editorsPicks} />
+        )}
+
+        {/* ━━━━━━━━━━━━ Most Read Today ━━━━━━━━━━━━ */}
+        {mostRead.length > 0 && (
+          <MostReadStrip articles={mostRead} />
+        )}
+
+        {/* ━━━━━━━━━━━━ Latest News (قائمة كاملة) ━━━━━━━━━━━━ */}
+        {latest.length > 7 && (
+          <section>
+            <SectionHeader
+              icon={<Newspaper size={18} />}
+              title="آخر الأخبار"
+              subtitle="جميع الأخبار حسب التسلسل الزمني"
+              href="/latest"
+            />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {latest.slice(7, 16).map((a: any, i: number) => (
+                <a
                   key={i}
-                  href="#"
-                  className="flex items-start gap-3.5 px-5 py-3.5 border-b border-line-soft last:border-b-0 hover:bg-bg-2 transition-colors"
+                  href={`/article/${a.slug}`}
+                  className="group bg-paper rounded-2xl border border-line overflow-hidden hover:border-burgundy/30 hover:shadow-lg transition-all"
                 >
-                  <span className="font-serif text-2xl font-bold text-burgundy/80 leading-none min-w-6">
-                    {["١", "٢", "٣", "٤", "٥"][i]}
-                  </span>
-                  <div>
-                    <div className="text-sm font-semibold text-ink leading-relaxed">
-                      {title}
-                    </div>
+                  <div className="aspect-[16/10] overflow-hidden bg-rose-cream">
+                    {a.featuredImageUrl ? (
+                      <img
+                        src={a.featuredImageUrl}
+                        alt={a.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-burgundy/10 to-rose-cream" />
+                    )}
                   </div>
-                </Link>
+                  <div className="p-4">
+                    {a.category && (
+                      <span className="text-[10px] font-bold text-burgundy uppercase tracking-wider mb-1.5 block">
+                        {a.category.name}
+                      </span>
+                    )}
+                    <h3 className="text-[14px] font-bold text-ink leading-snug line-clamp-2 group-hover:text-burgundy transition-colors -tracking-[0.01em]">
+                      {a.title}
+                    </h3>
+                  </div>
+                </a>
               ))}
             </div>
-          </div>
+          </section>
+        )}
 
-          {/* Newsletter */}
-          <div className="bg-gradient-to-br from-burgundy to-burgundy-dark text-white rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/5" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-white/5" />
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <Mail size={18} />
-                <h3 className="text-lg font-bold">نشرة عاجل</h3>
-              </div>
-              <p className="text-xs opacity-85 mb-4">
-                آخر الأخبار في بريدك كل صباح
-              </p>
-              <input
-                type="email"
-                placeholder="بريدك الإلكتروني"
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white/95 text-ink text-sm outline-none mb-2 placeholder:text-ink-faint"
-              />
-              <button className="w-full bg-white text-burgundy py-2.5 rounded-lg text-xs font-bold hover:bg-rose-cream transition-colors">
-                اشترك مجاناً
-              </button>
-            </div>
-          </div>
-        </aside>
-      </section>
-    </div>
-  );
-}
-
-function SectionHead({
-  icon,
-  title,
-  href,
-}: {
-  icon?: React.ReactNode;
-  title: string;
-  href?: string;
-}) {
-  return (
-    <div className="flex items-baseline justify-between mb-7 pb-3 border-b border-line relative">
-      <span className="absolute -bottom-px right-0 w-15 h-0.5 bg-burgundy" style={{ width: 60 }} />
-      <h2 className="text-2xl font-extrabold text-ink flex items-center gap-2.5 -tracking-[0.01em]">
-        {icon && <span className="text-burgundy">{icon}</span>}
-        {title}
-      </h2>
-      {href && (
-        <Link href={href} className="text-sm text-burgundy font-semibold hover:text-burgundy-dark">
-          شاهد الكل ←
-        </Link>
-      )}
-    </div>
+        {/* ━━━━━━━━━━━━ Newsletter Hero ━━━━━━━━━━━━ */}
+        <NewsletterHero />
+      </div>
+    </>
   );
 }
