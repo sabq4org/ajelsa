@@ -158,7 +158,7 @@ export default function BreakingPage() {
                 <div className="text-xs text-ink-faint">
                   <span>{article.authorName ?? "غير محدد"}</span>
                   {article.viewCount > 0 && (
-                    <span className="mr-3">{article.viewCount.toLocaleString("ar")} مشاهدة</span>
+                    <span className="mr-3">{article.viewCount.toLocaleString("en")} مشاهدة</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">

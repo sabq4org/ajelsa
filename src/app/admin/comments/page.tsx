@@ -123,7 +123,7 @@ export default function CommentsPage() {
                     {!c.isApproved && !c.isSpam && <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">في الانتظار</span>}
                   </div>
                   <div className="text-[11px] text-ink-soft">
-                    {c.authorEmail ?? "بدون إيميل"} · {new Date(c.createdAt).toLocaleString("ar-SA")}
+                    {c.authorEmail ?? "بدون إيميل"} · {new Date(c.createdAt).toLocaleString("ar-SA-u-ca-gregory-nu-latn")}
                   </div>
                 </div>
                 <div className="flex gap-1">

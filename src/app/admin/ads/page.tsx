@@ -167,8 +167,8 @@ export default function AdsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { label: "إعلانات نشطة", value: activeCount, sub: `من ${ads.length} إجمالي` },
-          { label: "إجمالي المشاهدات", value: totalImpressions.toLocaleString("ar-SA"), sub: "مشاهدة" },
-          { label: "إجمالي النقرات", value: totalClicks.toLocaleString("ar-SA"), sub: "نقرة" },
+          { label: "إجمالي المشاهدات", value: totalImpressions.toLocaleString("en"), sub: "مشاهدة" },
+          { label: "إجمالي النقرات", value: totalClicks.toLocaleString("en"), sub: "نقرة" },
           { label: "معدل النقر", value: avgCtr, sub: "متوسط CTR" },
         ].map((s) => (
           <div key={s.label} className="bg-paper border border-line rounded-2xl p-4">
@@ -223,14 +223,14 @@ export default function AdsPage() {
                         {ad.isActive ? "نشط" : "متوقف"}
                       </button>
                     </td>
-                    <td className="px-4 py-3 text-ink-2">{ad.impressions.toLocaleString("ar-SA")}</td>
-                    <td className="px-4 py-3 text-ink-2">{ad.clicks.toLocaleString("ar-SA")}</td>
+                    <td className="px-4 py-3 text-ink-2">{ad.impressions.toLocaleString("en")}</td>
+                    <td className="px-4 py-3 text-ink-2">{ad.clicks.toLocaleString("en")}</td>
                     <td className="px-4 py-3 font-semibold text-burgundy">{ctr(ad.impressions, ad.clicks)}</td>
                     <td className="px-4 py-3 text-ink-soft whitespace-nowrap">
                       {ad.startDate
-                        ? new Date(ad.startDate).toLocaleDateString("ar-SA")
+                        ? new Date(ad.startDate).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")
                         : "—"}
-                      {ad.endDate ? ` ← ${new Date(ad.endDate).toLocaleDateString("ar-SA")}` : ""}
+                      {ad.endDate ? ` ← ${new Date(ad.endDate).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")}` : ""}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">

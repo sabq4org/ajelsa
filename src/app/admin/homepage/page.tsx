@@ -140,7 +140,7 @@ export default function HomepagePage() {
         {article.viewCount > 0 && (
           <div className="flex items-center gap-1 text-[11px] text-ink-faint flex-shrink-0">
             <Eye size={11} />
-            <span>{article.viewCount.toLocaleString("ar")}</span>
+            <span>{article.viewCount.toLocaleString("en")}</span>
           </div>
         )}
 

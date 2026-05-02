@@ -25,7 +25,7 @@ export function ArticlePreviewModal({
 }: ArticlePreviewModalProps) {
   if (!open) return null;
 
-  const now = new Date().toLocaleDateString("ar-SA", {
+  const now = new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn", {
     year: "numeric",
     month: "long",
     day: "numeric",

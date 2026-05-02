@@ -259,7 +259,7 @@ export default function UsersPage() {
                     </span>
                   </td>
                   <td className="px-5 py-3.5 text-[12px] text-ink-soft">
-                    {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString("ar-SA") : "—"}
+                    {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn") : "—"}
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex gap-1 justify-end">

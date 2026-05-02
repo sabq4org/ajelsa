@@ -221,11 +221,11 @@ export default function ArticlesPage() {
                     </td>
                     <td className="px-5 py-3.5 text-[12px] text-ink-soft">
                       {item.publishedAt
-                        ? new Date(item.publishedAt).toLocaleDateString("ar-SA", { day: "numeric", month: "short" })
+                        ? new Date(item.publishedAt).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn", { day: "numeric", month: "short" })
                         : <span className="opacity-50">—</span>}
                     </td>
                     <td className="px-5 py-3.5 text-[13px] text-ink font-semibold tabular-nums">
-                      {item.viewCount > 0 ? item.viewCount.toLocaleString("ar-SA") : "—"}
+                      {item.viewCount > 0 ? item.viewCount.toLocaleString("en") : "—"}
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex gap-1 justify-end">

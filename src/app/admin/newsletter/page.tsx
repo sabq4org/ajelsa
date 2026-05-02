@@ -56,7 +56,7 @@ export default function NewsletterPage() {
       s.email,
       s.name ?? "",
       s.source ?? "",
-      new Date(s.subscribedAt).toLocaleDateString("ar-SA"),
+      new Date(s.subscribedAt).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn"),
       s.isActive ? "نشط" : "ملغى",
     ].map((v) => `"${v}"`).join(","));
     const csv = [header, ...rows].join("\n");
@@ -154,7 +154,7 @@ export default function NewsletterPage() {
                 <tr key={sub.id} className="border-b border-line-soft last:border-b-0 hover:bg-bg-2/40">
                   <td className="px-5 py-3.5 text-[13px] text-ink font-medium">{sub.email}</td>
                   <td className="px-5 py-3.5 text-[13px] text-ink-2">{sub.name ?? "—"}</td>
-                  <td className="px-5 py-3.5 text-[12px] text-ink-soft">{new Date(sub.subscribedAt).toLocaleDateString("ar-SA")}</td>
+                  <td className="px-5 py-3.5 text-[12px] text-ink-soft">{new Date(sub.subscribedAt).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")}</td>
                   <td className="px-5 py-3.5 text-[12px] text-ink-soft">{sub.source ?? "—"}</td>
                   <td className="px-5 py-3.5">
                     <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${sub.isActive ? "bg-emerald-50 text-sage" : "bg-bg-2 text-ink-soft"}`}>

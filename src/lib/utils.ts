@@ -69,8 +69,7 @@ export function formatNumber(n: number): string {
 }
 
 export function arabicOrdinal(n: number): string {
-  const arabic = ["١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩", "١٠"];
-  return arabic[n - 1] ?? n.toString();
+  return n.toString();
 }
 
 export function readingTimeMinutes(text: string): number {

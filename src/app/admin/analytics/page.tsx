@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Kpi icon={<FileText size={16} />} label="إجمالي الأخبار" value={data.totals.articles} sub={`${data.totals.published} منشور · ${data.totals.draft} مسودة`} />
-        <Kpi icon={<Eye size={16} />} label="إجمالي القراءات" value={data.totals.totalViews.toLocaleString("ar-SA")} accent />
+        <Kpi icon={<Eye size={16} />} label="إجمالي القراءات" value={data.totals.totalViews.toLocaleString("en")} accent />
         <Kpi icon={<Zap size={16} />} label="أخبار عاجلة" value={data.totals.breaking} />
         <Kpi icon={<MessageCircle size={16} />} label="التعليقات" value={data.totals.totalComments} sub={`${data.totals.pendingComments} في الانتظار`} />
         <Kpi icon={<UsersIcon size={16} />} label="فريق التحرير" value={data.totals.users} />
@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
                     <div className="text-[11px] text-ink-soft">{a.categoryName ?? "—"}</div>
                   </div>
                   <div className="text-[12px] text-ink-2 font-semibold tabular-nums shrink-0">
-                    {a.viewCount.toLocaleString("ar-SA")}
+                    {a.viewCount.toLocaleString("en")}
                   </div>
                 </li>
               ))}

@@ -159,9 +159,9 @@ export default function PollsPage() {
                   <div>
                     <h3 className="text-[15px] font-semibold text-ink mb-1">{poll.question}</h3>
                     <div className="flex items-center gap-3 text-[11px] text-ink-soft">
-                      <span>{new Date(poll.createdAt).toLocaleDateString("ar-SA")}</span>
+                      <span>{new Date(poll.createdAt).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")}</span>
                       {poll.endsAt && (
-                        <span>{isEnded ? "⏱ انتهى" : `ينتهي ${new Date(poll.endsAt).toLocaleDateString("ar-SA")}`}</span>
+                        <span>{isEnded ? "⏱ انتهى" : `ينتهي ${new Date(poll.endsAt).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn")}`}</span>
                       )}
                       <span>{total} صوت</span>
                     </div>
