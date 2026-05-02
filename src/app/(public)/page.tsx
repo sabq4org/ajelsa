@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { StoryCard } from "@/components/public/StoryCard";
 import {
   getLatestArticles,
@@ -115,16 +117,20 @@ export default async function HomePage() {
   try {
     const [featured, latestArticles, mostReadArticles] = await Promise.all([
       getFeaturedArticles(5),
-      getLatestArticles(8),
+      getLatestArticles(12),
       getMostReadArticles(5),
     ]);
 
     if (featured.length > 0) {
       lead = featured[0];
       sideStories = featured.slice(1, 5);
+    } else if (latestArticles.length > 0) {
+      // لو ما فيه مميزة، استخدم أحدث الأخبار
+      lead = latestArticles[0];
+      sideStories = latestArticles.slice(1, 5);
     }
 
-    latest = latestArticles.length > 0 ? latestArticles : null;
+    latest = latestArticles.length > 0 ? latestArticles.slice(lead ? 5 : 0) : null;
     mostRead = mostReadArticles.length > 0 ? mostReadArticles : null;
   } catch {
     // DB not connected — show demo

@@ -7,19 +7,21 @@ import Link from "next/link";
 import { formatArabicDate } from "@/lib/utils";
 import { Search, Bell, Menu, Moon } from "lucide-react";
 
-const NAV_ITEMS = [
-  { label: "الرئيسية", href: "/", isActive: true },
-  { label: "محليات", href: "/category/local" },
-  { label: "اقتصاد", href: "/category/business" },
-  { label: "رياضة", href: "/category/sports" },
-  { label: "عالم", href: "/category/world" },
-  { label: "تقنية", href: "/category/tech" },
-  { label: "منوعات", href: "/category/lifestyle" },
-  { label: "آراء", href: "/category/opinion" },
-  { label: "فيديو", href: "/category/video" },
+const STATIC_NAV: Array<{ label: string; href: string }> = [
+  { label: "الرئيسية", href: "/" },
 ];
 
-export function SiteHeader({ breakingHeadlines = [] }: { breakingHeadlines?: string[] }) {
+export function SiteHeader({
+  breakingHeadlines = [],
+  navCategories = [],
+}: {
+  breakingHeadlines?: string[];
+  navCategories?: Array<{ name: string; slug: string }>;
+}) {
+  const navItems = [
+    ...STATIC_NAV,
+    ...navCategories.map((c) => ({ label: c.name, href: `/category/${c.slug}` })),
+  ];
   return (
     <>
       {/* Top utility bar */}
@@ -83,15 +85,11 @@ export function SiteHeader({ breakingHeadlines = [] }: { breakingHeadlines?: str
         <div className="max-w-[1320px] mx-auto px-8">
           <div className="flex items-center justify-between gap-2">
             <ul className="flex">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`block py-3.5 px-4 text-sm font-medium relative transition-colors ${
-                      item.isActive
-                        ? "text-burgundy font-bold after:content-[''] after:absolute after:bottom-0 after:right-4 after:left-4 after:h-[3px] after:bg-burgundy after:rounded-t"
-                        : "text-ink-2 hover:text-burgundy"
-                    }`}
+                    className="block py-3.5 px-4 text-sm font-medium relative transition-colors text-ink-2 hover:text-burgundy"
                   >
                     {item.label}
                   </Link>

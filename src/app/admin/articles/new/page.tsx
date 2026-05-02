@@ -206,15 +206,6 @@ export default function NewArticlePage() {
             />
           </div>
 
-          {/* Content editor */}
-          <ArticleEditor
-            placeholder="ابدأ كتابة محتوى الخبر..."
-            onChange={({ html, json }) => {
-              setContentHtml(html);
-              setContentJson(json);
-            }}
-          />
-
           {/* ✨ Smart Edit Bar */}
           <SmartEditBar
             contentHtml={contentHtml}
@@ -228,6 +219,15 @@ export default function NewArticlePage() {
               if (data.contentHtml !== undefined) {
                 setContentHtml(data.contentHtml);
               }
+            }}
+          />
+
+          {/* Content editor */}
+          <ArticleEditor
+            placeholder="ابدأ كتابة محتوى الخبر..."
+            onChange={({ html, json }) => {
+              setContentHtml(html);
+              setContentJson(json);
             }}
           />
 
