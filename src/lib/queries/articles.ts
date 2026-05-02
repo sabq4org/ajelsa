@@ -201,7 +201,7 @@ export async function getCategoryArticles(
   const rows = Array.isArray(result) ? result : (result?.rows ?? []);
   console.log(`[getCategoryArticles] Found ${rows.length} rows for category: ${categorySlug}`);
 
-  return rows.map((r) => ({
+  return rows.map((r: any) => ({
     id: r.id,
     slug: r.slug,
     title: r.title,
