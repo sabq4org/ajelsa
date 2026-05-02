@@ -1,5 +1,5 @@
 /**
- * /api/ai/generate-image — توليد صورة الخبر بـ Gemini (nano-banana-pro)
+ * /api/ai/generate-image — توليد صورة الخبر بـ Gemini
  */
 
 export const maxDuration = 60;
@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadFile } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
+  // ── 1. التحقق من المفتاح ───────────────────────────────────────────────
   const apiKey = [
     process.env.GEMINI_API_KEY,
     process.env.GOOGLE_API_KEY,
@@ -16,89 +17,99 @@ export async function POST(req: NextRequest) {
   ].map((k) => k?.trim()).find((k) => k && k.length > 10);
 
   if (!apiKey) {
-    const debug = [
-      `GEMINI_API_KEY=${JSON.stringify(process.env.GEMINI_API_KEY?.slice(0, 8))}`,
-    ].join(" ");
-    console.error("[generate-image] API key empty or too short:", debug);
     return NextResponse.json(
-      { error: `مفتاح Gemini فارغ أو غير صحيح — تحقق من قيمة GEMINI_API_KEY في Vercel` },
+      { error: "مفتاح Gemini فارغ أو غير صحيح — تحقق من قيمة GEMINI_API_KEY في Vercel" },
       { status: 500 }
     );
   }
 
-  const { title, excerpt, category } = await req.json();
-
-  if (!title?.trim()) {
-    return NextResponse.json(
-      { error: "العنوان مطلوب لتوليد الصورة" },
-      { status: 400 }
-    );
+  // ── 2. قراءة الطلب ────────────────────────────────────────────────────
+  let title = "", excerpt = "", category = "";
+  try {
+    const body = await req.json();
+    title = body.title?.trim() ?? "";
+    excerpt = body.excerpt?.trim() ?? "";
+    category = body.category?.trim() ?? "";
+  } catch {
+    return NextResponse.json({ error: "طلب غير صحيح" }, { status: 400 });
   }
 
-  // ── بناء البرومبت ──────────────────────────────────────────────────────
-  const prompt = `Create a professional news photograph for a Saudi Arabic news article.
+  if (!title) {
+    return NextResponse.json({ error: "العنوان مطلوب لتوليد الصورة" }, { status: 400 });
+  }
 
+  // ── 3. بناء البرومبت ──────────────────────────────────────────────────
+  const prompt = `Create a professional news photograph for a Saudi Arabic news article.
 Title: ${title}
 ${excerpt ? `Summary: ${excerpt}` : ""}
 ${category ? `Category: ${category}` : ""}
+Style: professional photojournalism, realistic, 16:9 composition.
+Culturally appropriate for Saudi Arabia. No text, no watermarks, no logos.`;
 
-Requirements:
-- Professional photojournalism quality, realistic style
-- 16:9 widescreen composition
-- Culturally appropriate for Saudi Arabia and Gulf region
-- High visual impact, suitable for a news homepage
-- Modern, clean, credible
-- ABSOLUTELY NO TEXT, words, letters, numbers, or watermarks in the image
-- No logos, no signs with writing
-- Focus on visual storytelling through imagery only`;
+  // ── 4. استدعاء Gemini ─────────────────────────────────────────────────
+  let geminiRes: Response;
+  try {
+    geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseModalities: ["IMAGE"] },
+        }),
+      }
+    );
+  } catch (e: any) {
+    return NextResponse.json({ error: `فشل الاتصال بـ Gemini: ${e.message}` }, { status: 502 });
+  }
 
-  // ── استدعاء Gemini Image Generation ───────────────────────────────────
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseModalities: ["IMAGE"] },
-      }),
-    }
-  );
-
-  if (!response.ok) {
-    const err = await response.text();
-    console.error("[generate-image] Gemini error:", err);
+  if (!geminiRes.ok) {
+    const errText = await geminiRes.text().catch(() => "");
+    console.error("[generate-image] Gemini HTTP error:", geminiRes.status, errText);
     return NextResponse.json(
-      { error: "فشل توليد الصورة — تحقق من صحة مفتاح Gemini" },
+      { error: `Gemini رفض الطلب (${geminiRes.status}) — ${errText.slice(0, 200)}` },
       { status: 502 }
     );
   }
 
-  const data = await response.json();
+  // ── 5. استخراج الصورة ─────────────────────────────────────────────────
+  let data: any;
+  try {
+    data = await geminiRes.json();
+  } catch (e: any) {
+    return NextResponse.json({ error: `فشل قراءة رد Gemini: ${e.message}` }, { status: 502 });
+  }
 
-  // ── استخراج الصورة ─────────────────────────────────────────────────────
   const parts: any[] = data?.candidates?.[0]?.content?.parts ?? [];
   const imagePart = parts.find((p: any) => p.inlineData?.data);
 
   if (!imagePart) {
+    const reason = data?.candidates?.[0]?.finishReason ?? "UNKNOWN";
+    console.error("[generate-image] no image in response. finishReason:", reason, JSON.stringify(data).slice(0, 400));
     return NextResponse.json(
-      { error: "لم يتمكن النموذج من توليد صورة — جرب عنواناً مختلفاً" },
+      { error: `لم يتمكن النموذج من توليد الصورة (${reason}) — جرب عنواناً مختلفاً` },
       { status: 422 }
     );
   }
 
-  const base64 = imagePart.inlineData.data as string;
+  const base64: string = imagePart.inlineData.data;
   const mime: string = imagePart.inlineData.mimeType ?? "image/png";
   const ext = mime.split("/")[1]?.split(";")[0] ?? "png";
-
   const buffer = Buffer.from(base64, "base64");
 
-  // ── رفع على R2 ──────────────────────────────────────────────────────────
-  const { url } = await uploadFile(buffer, {
-    folder: "ai-generated",
-    extension: ext,
-    contentType: mime,
-  });
+  // ── 6. رفع على R2 ─────────────────────────────────────────────────────
+  let url: string;
+  try {
+    const uploaded = await uploadFile(buffer, {
+      folder: "ai-generated",
+      extension: ext,
+      contentType: mime,
+    });
+    url = uploaded.url;
+  } catch (e: any) {
+    return NextResponse.json({ error: `فشل رفع الصورة: ${e.message}` }, { status: 500 });
+  }
 
   return NextResponse.json({ url });
 }
