@@ -163,35 +163,35 @@ export async function getArticleBySlug(slug: string) {
   return { ...row, tags: tagRows };
 }
 
-/** أخبار قسم */
+/** أخبار قسم — raw SQL لتجنب مشكلة Drizzle enum */
 export async function getCategoryArticles(
   categorySlug: string,
   limit = 20,
   offset = 0
 ) {
-  const rows = await db
-    .select({
-      id: articles.id,
-      slug: articles.slug,
-      title: articles.title,
-      excerpt: articles.excerpt,
-      featuredImageUrl: articles.featuredImageUrl,
-      isBreaking: articles.isBreaking,
-      publishedAt: articles.publishedAt,
-      viewCount: articles.viewCount,
-      categoryName: categories.name,
-      categorySlug: categories.slug,
-      authorName: users.fullName,
-    })
-    .from(articles)
-    .innerJoin(categories, eq(articles.categoryId, categories.id))
-    .leftJoin(users, eq(articles.authorId, users.id))
-    .where(and(PUBLISHED_FILTER, eq(categories.slug, categorySlug)))
-    .orderBy(desc(articles.publishedAt))
-    .limit(limit)
-    .offset(offset);
+  const result = await db.execute(
+    sql`
+      SELECT
+        a.id, a.slug, a.title, a.excerpt,
+        a.featured_image_url  AS "featuredImageUrl",
+        a.is_breaking         AS "isBreaking",
+        a.published_at        AS "publishedAt",
+        a.view_count          AS "viewCount",
+        c.name                AS "categoryName",
+        c.slug                AS "categorySlug",
+        u.full_name           AS "authorName"
+      FROM articles a
+      INNER JOIN categories c ON a.category_id = c.id
+      LEFT  JOIN users u      ON a.author_id   = u.id
+      WHERE a.status = 'published'
+        AND a.published_at IS NOT NULL
+        AND c.slug = ${categorySlug}
+      ORDER BY a.published_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `
+  );
 
-  // تحويل البيانات للشكل المتوقع من StoryCard
+  const rows = (result?.rows ?? result) as any[];
   return rows.map((r) => ({
     id: r.id,
     slug: r.slug,
@@ -199,8 +199,8 @@ export async function getCategoryArticles(
     excerpt: r.excerpt,
     featuredImageUrl: r.featuredImageUrl,
     isBreaking: r.isBreaking,
-    publishedAt: r.publishedAt,
-    viewCount: r.viewCount,
+    publishedAt: r.publishedAt ? new Date(r.publishedAt) : null,
+    viewCount: r.viewCount ?? 0,
     category: { name: r.categoryName ?? "", slug: r.categorySlug ?? "" },
     author: r.authorName ? { fullName: r.authorName } : null,
   }));
